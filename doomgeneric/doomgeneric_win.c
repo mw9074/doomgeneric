@@ -17,6 +17,8 @@ static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
 static unsigned int s_KeyQueueWriteIndex = 0;
 static unsigned int s_KeyQueueReadIndex = 0;
 
+static char s_FilesDir[260] = ".";
+
 static unsigned char convertToDoomKey(unsigned char key)
 {
 	switch (key)
@@ -139,6 +141,11 @@ void DG_Init()
 	}
 
 	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
+}
+
+char* DG_GetFilesDir()
+{
+    return s_FilesDir;
 }
 
 char* DG_GetDefaultConfigDir()

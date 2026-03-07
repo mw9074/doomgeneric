@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "doomgeneric.h"
 #include "deh_str.h"
 #include "doomkeys.h"
 #include "d_iwad.h"
@@ -613,7 +614,7 @@ static void BuildIWADDirList(void)
 
 #endif
 #else
-    AddIWADDir (FILES_DIR);
+    AddIWADDir (DG_GetFilesDir());
 
     // Don't run this function again.
 
