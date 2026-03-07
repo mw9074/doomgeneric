@@ -40,22 +40,6 @@ FILE *save_stream;
 int savegamelength;
 boolean savegame_error;
 
-// Get the filename of a temporary file to write the savegame to.  After
-// the file has been successfully saved, it will be renamed to the 
-// real file.
-
-char *P_TempSaveGameFile(void)
-{
-    static char *filename = NULL;
-
-    if (filename == NULL)
-    {
-        filename = M_StringJoin(savegamedir, "temp.dsg", NULL);
-    }
-
-    return filename;
-}
-
 // Get the filename of the save game file to use for the specified slot.
 
 char *P_SaveGameFile(int slot)

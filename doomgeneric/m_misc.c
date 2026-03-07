@@ -157,34 +157,17 @@ int M_ReadFile(char *name, byte **buffer)
 		
     *buffer = buf;
     return length;
-}
+    length = (int)M_FileLength(handle);
 
-// Returns the path to a temporary file of the given name, stored
-// inside the system temporary directory.
-//
-// The returned value must be freed with Z_Free after use.
+    buf = Z_Malloc (length, PU_STATIC, NULL);
+    count = DG_FileRead(handle, buf, (size_t)length);
+    DG_FileClose(handle);
 
-char *M_TempFile(char *s)
-{
-    char *tempdir;
+    if (count < (size_t)length)
+        I_Error ("Couldn't read file %s", name);
 
-#if defined(_WIN32) || defined(__DJGPP__)
-
-    // Check the TEMP environment variable to find the location.
-
-    tempdir = getenv("TEMP");
-
-    if (tempdir == NULL)
-    {
-        tempdir = ".";
-    }
-#else
-    // In Unix, just use /tmp.
-
-    tempdir = "/tmp";
-#endif
-
-    return M_StringJoin(tempdir, DIR_SEPARATOR_S, s, NULL);
+    *buffer = buf;
+    return length;
 }
 
 boolean M_StrToInt(const char *str, int *result)

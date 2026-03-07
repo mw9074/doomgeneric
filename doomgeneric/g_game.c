@@ -1610,30 +1610,18 @@ G_SaveGame
 void G_DoSaveGame (void) 
 { 
     char *savegame_file;
-    char *temp_savegame_file;
-    char *recovery_savegame_file;
 
-    recovery_savegame_file = NULL;
-    temp_savegame_file = P_TempSaveGameFile();
     savegame_file = P_SaveGameFile(savegameslot);
 
-    // Open the savegame file for writing.  We write to a temporary file
-    // and then rename it at the end if it was successfully written.
-    // This prevents an existing savegame from being overwritten by 
-    // a corrupted one, or if a savegame buffer overrun occurs.
-    save_stream = fopen(temp_savegame_file, "wb");
+    // Open the savegame file for writing.
+    // This may immediately clobber an existing savegame file,
+    // but this approach simplifies the implementation.
+    save_stream = fopen(savegame_file, "wb");
 
     if (save_stream == NULL)
     {
-        // Failed to save the game, so we're going to have to abort. But
-        // to be nice, save to somewhere else before we call I_Error().
-        recovery_savegame_file = M_TempFile("recovery.dsg");
-        save_stream = fopen(recovery_savegame_file, "wb");
-        if (save_stream == NULL)
-        {
-            I_Error("Failed to open either '%s' or '%s' to write savegame.",
-                    temp_savegame_file, recovery_savegame_file);
-        }
+        // Failed to save the game, so we're going to have to abort.
+        I_Error("Failed to open '%s' to write savegame.", savegame_file);
     }
 
     savegame_error = false;
@@ -1658,22 +1646,6 @@ void G_DoSaveGame (void)
     // Finish up, close the savegame file.
 
     fclose(save_stream);
-
-    if (recovery_savegame_file != NULL)
-    {
-        // We failed to save to the normal location, but we wrote a
-        // recovery file to the temp directory. Now we can bomb out
-        // with an error.
-        I_Error("Failed to open savegame file '%s' for writing.\n"
-                "But your game has been saved to '%s' for recovery.",
-                temp_savegame_file, recovery_savegame_file);
-    }
-
-    // Now rename the temporary savegame file to the actual savegame
-    // file, overwriting the old savegame if there was one there.
-
-    remove(savegame_file);
-    rename(temp_savegame_file, savegame_file);
     
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));

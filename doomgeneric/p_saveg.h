@@ -26,10 +26,6 @@
 
 #define SAVESTRINGSIZE 24
 
-// temporary filename to use while saving.
-
-char *P_TempSaveGameFile(void);
-
 // filename to use for a savegame slot
 
 char *P_SaveGameFile(int slot);
