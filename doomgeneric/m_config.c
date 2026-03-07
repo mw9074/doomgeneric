@@ -29,6 +29,7 @@
 #include "doomtype.h"
 #include "doomkeys.h"
 #include "doomfeatures.h"
+#include "doomgeneric.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -2037,18 +2038,6 @@ float M_GetFloatVariable(char *name)
     return *((float *) variable->location);
 }
 
-// Get the path to the default configuration dir to use, if NULL
-// is passed to M_SetConfigDir.
-
-static char *GetDefaultConfigDir(void)
-{
-    char *result = (char *)malloc(2);
-    result[0] = '.';
-    result[1] = '\0';
-
-    return result;
-}
-
 // 
 // SetConfigDir:
 //
@@ -2066,7 +2055,7 @@ void M_SetConfigDir(char *dir)
     }
     else
     {
-        configdir = GetDefaultConfigDir();
+        configdir = DG_GetDefaultConfigDir();
     }
 
     if (strcmp(configdir, "") != 0)

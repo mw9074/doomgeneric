@@ -141,6 +141,14 @@ void DG_Init()
 	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
 }
 
+char* DG_GetDefaultConfigDir()
+{
+    char* dir = malloc(2);
+    dir[0] = '.';
+    dir[1] = '\0';
+    return dir;
+}
+
 void DG_DrawFrame()
 {
 	MSG msg;
