@@ -38,6 +38,7 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include "doomkeys.h"
 
 #include "doomgeneric.h"
+#include "doomgeneric_gfx.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -73,6 +74,7 @@ struct FB_ScreenInfo
 };
 
 static struct FB_ScreenInfo s_Fb;
+static struct dg_screen_info s_DgScreenInfo;
 int fb_scaling = 1;
 int usemouse = 0;
 
@@ -95,6 +97,11 @@ void I_GetEvent(void);
 // The screen buffer; this is modified to draw things to the screen
 
 byte *I_VideoBuffer = NULL;
+
+// The screen buffer read by external code.
+
+size_t DG_ScreenBufferSize = 0;
+uint8_t* DG_ScreenBuffer = NULL;
 
 // If true, game is running as a screensaver
 
@@ -163,7 +170,7 @@ void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
     {
         c = colors + ((int)*in) * 3;  // R:8 G:8 B:8
 
-        if (s_Fb.bits_per_pixel == 16)
+        if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format)
         {
             // RGB565 packing
             uint16_t p = ((c[0] & 0xF8) << 8) | // R
@@ -178,9 +185,17 @@ void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
                 out += 2;
             }
         }
-        else if (s_Fb.bits_per_pixel == 32)
+        else if (DG_COLOR_FORMAT_RGB888 == s_DgScreenInfo.color_format)
         {
-            // Assuming RGBA8888
+            for (k = 0; k < fb_scaling; k++) {
+                out[0] = c[0];
+                out[1] = c[1];
+                out[2] = c[2];
+                out += 3;
+            }
+        }
+        else if (DG_COLOR_FORMAT_RGBA8888 == s_DgScreenInfo.color_format)
+        {
             pix = (c[0] << s_Fb.red.offset) |
                   (c[1] << s_Fb.green.offset) |
                   (c[2] << s_Fb.blue.offset);
@@ -202,14 +217,33 @@ void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
     }
 }
 
-void I_InitGraphics (void)
+void DG_GetScreenInfo(dg_screen_info_t* info)
 {
-    int i, gfxmodeparm;
-    char *mode;
+	DG_GraphicsLock();
+
+	*info = s_DgScreenInfo;
+
+	DG_GraphicsUnlock();
+}
+
+void DG_SetInitialScreenInfo(const dg_screen_info_t* screen_info)
+{
+	DG_GraphicsLock();
+
+	s_DgScreenInfo = *screen_info;
+
+	DG_GraphicsUnlock();
+}
+
+void I_InitGraphics(void)
+{
+	int i;
+
+	DG_GraphicsLock();
 
 	memset(&s_Fb, 0, sizeof(struct FB_ScreenInfo));
-	s_Fb.xres = DOOMGENERIC_RESX;
-	s_Fb.yres = DOOMGENERIC_RESY;
+	s_Fb.xres = s_DgScreenInfo.xres;
+	s_Fb.yres = s_DgScreenInfo.yres;
 	s_Fb.xres_virtual = s_Fb.xres;
 	s_Fb.yres_virtual = s_Fb.yres;
 
@@ -219,19 +253,7 @@ void I_InitGraphics (void)
 
 #else  // CMAP256
 
-	gfxmodeparm = M_CheckParmWithArgs("-gfxmode", 1);
-
-	if (gfxmodeparm) {
-		mode = myargv[gfxmodeparm + 1];
-	}
-	else {
-		// default to rgba8888 like the old behavior, for compatibility
-		// maybe could warn here?
-		mode = "rgba8888";
-	}
-
-	if (strcmp(mode, "rgba8888") == 0) {
-		// default mode
+	if (DG_COLOR_FORMAT_RGBA8888 == s_DgScreenInfo.color_format) {
 		s_Fb.bits_per_pixel = 32;
 
 		s_Fb.blue.length = 8;
@@ -244,8 +266,20 @@ void I_InitGraphics (void)
 		s_Fb.red.offset = 16;
 		s_Fb.transp.offset = 24;
 	}
+	else if (DG_COLOR_FORMAT_RGB888 == s_DgScreenInfo.color_format) {
+		s_Fb.bits_per_pixel = 24;
 
-	else if (strcmp(mode, "rgb565") == 0) {
+		s_Fb.blue.length = 8;
+		s_Fb.green.length = 8;
+		s_Fb.red.length = 8;
+		s_Fb.transp.length = 0;
+
+		s_Fb.blue.offset = 0;
+		s_Fb.green.offset = 8;
+		s_Fb.red.offset = 16;
+		s_Fb.transp.offset = 0;
+	}
+	else if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format) {
 		s_Fb.bits_per_pixel = 16;
 
 		s_Fb.blue.length = 5;
@@ -259,45 +293,109 @@ void I_InitGraphics (void)
 		s_Fb.transp.offset = 16;
 	}
 	else
-		I_Error("Unknown gfxmode value: %s\n", mode);
+		I_Error("Unknown color format value: %d\n", (int)s_DgScreenInfo.color_format);
 
 
 #endif  // CMAP256
 
-    printf("I_InitGraphics: framebuffer: x_res: %d, y_res: %d, x_virtual: %d, y_virtual: %d, bpp: %d\n",
-            s_Fb.xres, s_Fb.yres, s_Fb.xres_virtual, s_Fb.yres_virtual, s_Fb.bits_per_pixel);
+	printf("I_InitGraphics: framebuffer: x_res: %d, y_res: %d, x_virtual: %d, y_virtual: %d, bpp: %d\n",
+		s_Fb.xres, s_Fb.yres, s_Fb.xres_virtual, s_Fb.yres_virtual, s_Fb.bits_per_pixel);
 
-    printf("I_InitGraphics: framebuffer: RGBA: %d%d%d%d, red_off: %d, green_off: %d, blue_off: %d, transp_off: %d\n",
-            s_Fb.red.length, s_Fb.green.length, s_Fb.blue.length, s_Fb.transp.length, s_Fb.red.offset, s_Fb.green.offset, s_Fb.blue.offset, s_Fb.transp.offset);
+	printf("I_InitGraphics: framebuffer: RGBA: %d%d%d%d, red_off: %d, green_off: %d, blue_off: %d, transp_off: %d\n",
+		s_Fb.red.length, s_Fb.green.length, s_Fb.blue.length, s_Fb.transp.length, s_Fb.red.offset, s_Fb.green.offset, s_Fb.blue.offset, s_Fb.transp.offset);
 
-    printf("I_InitGraphics: DOOM screen size: w x h: %d x %d\n", SCREENWIDTH, SCREENHEIGHT);
-
-
-    i = M_CheckParmWithArgs("-scaling", 1);
-    if (i > 0) {
-        i = atoi(myargv[i + 1]);
-        fb_scaling = i;
-        printf("I_InitGraphics: Scaling factor: %d\n", fb_scaling);
-    } else {
-        fb_scaling = s_Fb.xres / SCREENWIDTH;
-        if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
-            fb_scaling = s_Fb.yres / SCREENHEIGHT;
-        printf("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
-    }
+	printf("I_InitGraphics: DOOM screen size: w x h: %d x %d\n", SCREENWIDTH, SCREENHEIGHT);
 
 
-    /* Allocate screen to draw to */
-	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
+	i = M_CheckParmWithArgs("-scaling", 1);
+	if (i > 0) {
+		i = atoi(myargv[i + 1]);
+		fb_scaling = i;
+		printf("I_InitGraphics: Scaling factor: %d\n", fb_scaling);
+	}
+	else {
+		fb_scaling = s_Fb.xres / SCREENWIDTH;
+		if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
+			fb_scaling = s_Fb.yres / SCREENHEIGHT;
+		printf("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
+	}
+
+
+	/* Allocate screen to draw to */
+	I_VideoBuffer = (byte*)Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
+
+	/* Allocate the screen buffer read by external code. */
+	size_t newSbSize = (size_t)(s_Fb.xres * s_Fb.yres * (s_Fb.bits_per_pixel / 8));
+	if (newSbSize > DG_ScreenBufferSize)
+	{
+		free(DG_ScreenBuffer);
+		DG_ScreenBuffer = malloc(newSbSize);
+		if (DG_ScreenBuffer)
+		{
+			DG_ScreenBufferSize = newSbSize;
+		}
+	}
 
 	screenvisible = true;
+	DG_GraphicsUnlock();
 
-    extern void I_InitInput(void);
-    I_InitInput();
+	extern void I_InitInput(void);
+	I_InitInput();
 }
 
-void I_ShutdownGraphics (void)
+void DG_SetScreenSize(uint32_t width, uint32_t height)
 {
-	Z_Free (I_VideoBuffer);
+	DG_GraphicsLock();
+
+	bool size_changed = (width != s_DgScreenInfo.xres) || (height != s_DgScreenInfo.yres);
+
+	s_DgScreenInfo.xres = width;
+	s_DgScreenInfo.yres = height;
+
+	s_Fb.xres = s_DgScreenInfo.xres;
+	s_Fb.yres = s_DgScreenInfo.yres;
+	s_Fb.xres_virtual = s_Fb.xres;
+	s_Fb.yres_virtual = s_Fb.yres;
+
+	int old_scaling = fb_scaling;
+
+	fb_scaling = s_Fb.xres / SCREENWIDTH;
+	if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
+		fb_scaling = s_Fb.yres / SCREENHEIGHT;
+	if (fb_scaling != old_scaling)
+	{
+		printf("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
+	}
+
+	size_t newSbSize = (size_t)(s_Fb.xres * s_Fb.yres * (s_Fb.bits_per_pixel / 8));
+	if (newSbSize > DG_ScreenBufferSize)
+	{
+		free(DG_ScreenBuffer);
+
+		DG_ScreenBuffer = malloc(newSbSize);
+		if (DG_ScreenBuffer)
+		{
+			DG_ScreenBufferSize = newSbSize;
+		}
+	}
+
+	// Clear out the buffer so unused pixels draw as black.
+	memset(DG_ScreenBuffer, 0, DG_ScreenBufferSize);
+
+	DG_GraphicsUnlock();
+}
+
+void I_ShutdownGraphics(void)
+{
+	DG_GraphicsLock();
+
+	Z_Free(I_VideoBuffer);
+
+	free(DG_ScreenBuffer);
+	DG_ScreenBuffer = NULL;
+	DG_ScreenBufferSize = 0;
+
+	DG_GraphicsUnlock();
 }
 
 void I_StartFrame (void)
@@ -323,6 +421,8 @@ void I_FinishUpdate (void)
     int y;
     int x_offset, y_offset, x_offset_end;
     unsigned char *line_in, *line_out;
+
+    DG_GraphicsLock();
 
     /* Offsets in case FB is bigger than DOOM */
     /* 600 = s_Fb heigt, 200 screenheight */
@@ -367,6 +467,7 @@ void I_FinishUpdate (void)
     }
 
 	DG_DrawFrame();
+    DG_GraphicsUnlock();
 }
 
 //

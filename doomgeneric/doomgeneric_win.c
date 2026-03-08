@@ -1,12 +1,16 @@
 #include "doomkeys.h"
 
 #include "doomgeneric.h"
+#include "doomgeneric_gfx.h"
 
 #include <stdio.h>
 
 #include <Windows.h>
 
-static BITMAPINFO s_Bmi = { sizeof(BITMAPINFOHEADER), DOOMGENERIC_RESX, -DOOMGENERIC_RESY, 1, 32 };
+#define DEFAULT_SCREEN_WIDTH 640
+#define DEFAULT_SCREEN_HEIGHT 400
+
+static BITMAPINFO s_Bmi = { sizeof(BITMAPINFOHEADER), DEFAULT_SCREEN_WIDTH, -DEFAULT_SCREEN_HEIGHT, 1, 32 };
 static HWND s_Hwnd = 0;
 static HDC s_Hdc = 0;
 
@@ -81,6 +85,9 @@ static void addKeyToQueue(int pressed, unsigned char keyCode)
 
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	RECT rect;
+	int width, height;
+
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -90,6 +97,21 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		PostQuitMessage(0);
 		ExitProcess(0);
 		break;
+	case WM_SIZE:
+		GetClientRect(hwnd, &rect);
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+
+		// Only update the screen if it is at least
+		// as big as the internal screen buffer.
+		if (width >= 320 && height >= 200)
+		{
+			// Make width even to avoid an issue with the internal scaling code.
+			width &= ~1;
+
+			DG_SetScreenSize((uint32_t)width, (uint32_t)height);
+		}
+		return DefWindowProcA(hwnd, msg, wParam, lParam);
 	case WM_KEYDOWN:
 		addKeyToQueue(1, wParam);
 		break;
@@ -100,6 +122,16 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		return DefWindowProcA(hwnd, msg, wParam, lParam);
 	}
 	return 0;
+}
+
+void DG_GraphicsLock()
+{
+    // Nothing to do here since all usage of DG_ScreenBuffer is done on the same thread.
+}
+
+void DG_GraphicsUnlock()
+{
+    // Nothing to do here since all usage of DG_ScreenBuffer is done on the same thread.
 }
 
 void DG_Init()
@@ -129,10 +161,13 @@ void DG_Init()
 		exit(-1);
 	}
 
+	dg_screen_info_t si;
+	DG_GetScreenInfo(&si);
+
 	RECT rect;
 	rect.left = rect.top = 0;
-	rect.right = DOOMGENERIC_RESX;
-	rect.bottom = DOOMGENERIC_RESY;
+	rect.right = si.xres;
+	rect.bottom = si.yres;
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
 	HWND hwnd = CreateWindowExA(0, windowClassName, windowTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, 0, 0, 0, 0);
@@ -177,7 +212,12 @@ void DG_DrawFrame()
 		DispatchMessageA(&msg);
 	}
 
-	StretchDIBits(s_Hdc, 0, 0, DOOMGENERIC_RESX, DOOMGENERIC_RESY, 0, 0, DOOMGENERIC_RESX, DOOMGENERIC_RESY, DG_ScreenBuffer, &s_Bmi, 0, SRCCOPY);
+	dg_screen_info_t si;
+	DG_GetScreenInfo(&si);
+	s_Bmi.bmiHeader.biWidth = si.xres;
+	s_Bmi.bmiHeader.biHeight = -((LONG)si.yres); // negative height to indicate top-down bitmap
+
+	StretchDIBits(s_Hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, DG_ScreenBuffer, &s_Bmi, 0, SRCCOPY);
 
 	SwapBuffers(s_Hdc);
 }
@@ -221,15 +261,19 @@ void DG_SetWindowTitle(const char * title)
 	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    doomgeneric_Create(argc, argv);
+	dg_screen_info_t si = { 0 };
+	si.color_format = DG_COLOR_FORMAT_RGBA8888;
+	si.xres = DEFAULT_SCREEN_WIDTH;
+	si.yres = DEFAULT_SCREEN_HEIGHT;
 
-    for (int i = 0; ; i++)
-    {
-        doomgeneric_Tick();
-    }
-    
+	doomgeneric_Create(argc, argv, &si);
 
-    return 0;
+	for (int i = 0; ; i++)
+	{
+		doomgeneric_Tick();
+	}
+
+	return 0;
 }
