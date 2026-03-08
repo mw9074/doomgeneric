@@ -50,6 +50,16 @@ static unsigned char convertToDoomKey(unsigned char key)
 	case VK_SHIFT:
 		key = KEY_RSHIFT;
 		break;
+	case VK_ADD:
+	case VK_OEM_PLUS:
+		// Increase size of rendered area
+		key = KEY_EQUALS;
+		break;
+	case VK_SUBTRACT:
+	case VK_OEM_MINUS:
+		// Decrease size of rendered area
+		key = KEY_MINUS;
+		break;
 	default:
 		key = tolower(key);
 		break;
