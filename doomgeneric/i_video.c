@@ -80,11 +80,11 @@ int usemouse = 0;
 #ifdef CMAP256
 
 boolean palette_changed;
-struct color colors[256];
+uint8_t colors[256];
 
 #else  // CMAP256
-
-static struct color colors[256];
+// R:8 G:8 B:8
+static uint8_t colors[256 * 3];
 
 
 #endif  // CMAP256
@@ -135,15 +135,15 @@ static uint16_t rgb565_palette[256];
 void cmap_to_rgb565(uint16_t * out, uint8_t * in, int in_pixels)
 {
     int i, j;
-    struct color c;
+    const uint8_t* c;
     uint16_t r, g, b;
 
     for (i = 0; i < in_pixels; i++)
     {
-        c = colors[*in]; 
-        r = ((uint16_t)(c.r >> 3)) << 11;
-        g = ((uint16_t)(c.g >> 2)) << 5;
-        b = ((uint16_t)(c.b >> 3)) << 0;
+        c = colors + ((int)*in) * 3;
+        r = ((uint16_t)(c[0] >> 3)) << 11;
+        g = ((uint16_t)(c[1] >> 2)) << 5;
+        b = ((uint16_t)(c[2] >> 3)) << 0;
         *out = (r | g | b);
 
         in++;
@@ -156,19 +156,19 @@ void cmap_to_rgb565(uint16_t * out, uint8_t * in, int in_pixels)
 void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
 {
     int i, k;
-    struct color c;
+    const uint8_t* c;
     uint32_t pix;
 
     for (i = 0; i < in_pixels; i++)
     {
-        c = colors[*in];  // R:8 G:8 B:8
+        c = colors + ((int)*in) * 3;  // R:8 G:8 B:8
 
         if (s_Fb.bits_per_pixel == 16)
         {
             // RGB565 packing
-            uint16_t p = ((c.r & 0xF8) << 8) |
-                         ((c.g & 0xFC) << 3) |
-                         (c.b >> 3);
+            uint16_t p = ((c[0] & 0xF8) << 8) | // R
+                         ((c[1] & 0xFC) << 3) | // G
+                         (c[2] >> 3); // B
 
 #ifdef SYS_BIG_ENDIAN
             p = swapeLE16(p); // can't use SHORT() because this needs to stay unsigned
@@ -181,9 +181,9 @@ void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
         else if (s_Fb.bits_per_pixel == 32)
         {
             // Assuming RGBA8888
-            pix = (c.r << s_Fb.red.offset) |
-                  (c.g << s_Fb.green.offset) |
-                  (c.b << s_Fb.blue.offset);
+            pix = (c[0] << s_Fb.red.offset) |
+                  (c[1] << s_Fb.green.offset) |
+                  (c[2] << s_Fb.blue.offset);
 
 #ifdef SYS_BIG_ENDIAN
             pix = swapLE32(pix);
@@ -405,11 +405,12 @@ void I_SetPalette (byte* palette)
     /* performance boost:
      * map to the right pixel format over here! */
 
+    uint8_t* c = colors;
     for (i=0; i<256; ++i ) {
-        colors[i].a = 0;
-        colors[i].r = gammatable[usegamma][*palette++];
-        colors[i].g = gammatable[usegamma][*palette++];
-        colors[i].b = gammatable[usegamma][*palette++];
+        c[0] = gammatable[usegamma][*palette++]; // R
+        c[1] = gammatable[usegamma][*palette++]; // G
+        c[2] = gammatable[usegamma][*palette++]; // B
+        c += 3;
     }
 
 #ifdef CMAP256
