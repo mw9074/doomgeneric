@@ -22,18 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <io.h>
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
 #endif
 
 #include "doomtype.h"
@@ -47,60 +39,43 @@
 #include "v_video.h"
 #include "w_wad.h"
 #include "z_zone.h"
-
-//
-// Create a directory
-//
-
-void M_MakeDirectory(char *path)
-{
-#ifdef _WIN32
-    mkdir(path);
-#else
-    mkdir(path, 0755);
-#endif
-}
+#include "dg_file_interface.h"
 
 // Check if a file exists
 
 boolean M_FileExists(char *filename)
 {
-    FILE *fstream;
+    dg_file_handle_t fstream;
 
-    fstream = fopen(filename, "r");
+    fstream = DG_FileOpen(filename, DG_FILE_MODE_READ);
 
     if (fstream != NULL)
     {
-        fclose(fstream);
+        DG_FileClose(fstream);
         return true;
     }
-    else
-    {
-        // If we can't open because the file is a directory, the 
-        // "file" exists at least!
 
-        return errno == EISDIR;
-    }
+    return false;
 }
 
 //
 // Determine the length of an open file.
 //
 
-long M_FileLength(FILE *handle)
-{ 
+long M_FileLength(dg_file_handle_t handle)
+{
     long savedpos;
     long length;
 
     // save the current position in the file
-    savedpos = ftell(handle);
-    
+    savedpos = DG_FileTell(handle);
+
     // jump to the end and find the length
-    fseek(handle, 0, SEEK_END);
-    length = ftell(handle);
+    DG_FileSeek(handle, 0, DG_FILE_SEEK_END);
+    length = DG_FileTell(handle);
 
     // go back to the old location
-    fseek(handle, savedpos, SEEK_SET);
+    DG_FileSeek(handle, savedpos, DG_FILE_SEEK_SET);
 
     return length;
 }
@@ -111,20 +86,20 @@ long M_FileLength(FILE *handle)
 
 boolean M_WriteFile(char *name, void *source, int length)
 {
-    FILE *handle;
-    int	count;
-	
-    handle = fopen(name, "wb");
+    dg_file_handle_t handle;
+    size_t count;
+
+    handle = DG_FileOpen(name, DG_FILE_MODE_WRITE | DG_FILE_MODE_BINARY);
 
     if (handle == NULL)
-	return false;
+        return false;
 
-    count = fwrite(source, 1, length, handle);
-    fclose(handle);
-	
-    if (count < length)
-	return false;
-		
+    count = DG_FileWrite(handle, source, (size_t)length);
+    DG_FileClose(handle);
+
+    if (count < (size_t)length)
+        return false;
+
     return true;
 }
 
@@ -135,28 +110,18 @@ boolean M_WriteFile(char *name, void *source, int length)
 
 int M_ReadFile(char *name, byte **buffer)
 {
-    FILE *handle;
-    int	count, length;
+    dg_file_handle_t handle;
+    size_t count;
+    int length;
     byte *buf;
-	
-    handle = fopen(name, "rb");
+
+    handle = DG_FileOpen(name, DG_FILE_MODE_READ | DG_FILE_MODE_BINARY);
     if (handle == NULL)
-	I_Error ("Couldn't read file %s", name);
+        I_Error ("Couldn't read file %s", name);
 
     // find the size of the file by seeking to the end and
     // reading the current position
 
-    length = M_FileLength(handle);
-    
-    buf = Z_Malloc (length, PU_STATIC, NULL);
-    count = fread(buf, 1, length, handle);
-    fclose (handle);
-	
-    if (count < length)
-	I_Error ("Couldn't read file %s", name);
-		
-    *buffer = buf;
-    return length;
     length = (int)M_FileLength(handle);
 
     buf = Z_Malloc (length, PU_STATIC, NULL);

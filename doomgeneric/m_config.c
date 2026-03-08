@@ -30,6 +30,7 @@
 #include "doomkeys.h"
 #include "doomfeatures.h"
 #include "doomgeneric.h"
+#include "dg_file_interface.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -2065,7 +2066,7 @@ void M_SetConfigDir(char *dir)
 
     // Make the directory if it doesn't already exist:
 
-    M_MakeDirectory(configdir);
+    DG_MakeDirectory(configdir);
 }
 
 //
@@ -2093,20 +2094,20 @@ char *M_GetSaveGameDir(char *iwadname)
         // ~/.chocolate-doom/savegames
 
         topdir = M_StringJoin(configdir, "savegame", NULL);
-        M_MakeDirectory(topdir);
+        DG_MakeDirectory(topdir);
 
         // eg. ~/.chocolate-doom/savegames/doom2.wad/
 
         savegamedir = M_StringJoin(topdir, DIR_SEPARATOR_S, iwadname,
                                    DIR_SEPARATOR_S, NULL);
 
-        M_MakeDirectory(savegamedir);
+        DG_MakeDirectory(savegamedir);
 
         free(topdir);
 #else
         savegamedir = M_StringJoin(configdir, DIR_SEPARATOR_S, ".savegame/", NULL);
 
-        M_MakeDirectory(savegamedir);
+        DG_MakeDirectory(savegamedir);
 
         printf ("Using %s for savegames\n", savegamedir);
 #endif

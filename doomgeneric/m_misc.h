@@ -22,14 +22,13 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-
+#include "dg_file_interface.h"
 #include "doomtype.h"
 
 boolean M_WriteFile(char *name, void *source, int length);
 int M_ReadFile(char *name, byte **buffer);
-void M_MakeDirectory(char *dir);
 boolean M_FileExists(char *file);
-long M_FileLength(FILE *handle);
+long M_FileLength(dg_file_handle_t handle);
 boolean M_StrToInt(const char *str, int *result);
 void M_ExtractFileBase(char *path, char *dest);
 void M_ForceUppercase(char *text);

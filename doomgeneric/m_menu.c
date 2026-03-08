@@ -22,6 +22,7 @@
 #include <ctype.h>
 
 
+#include "dg_file_interface.h"
 #include "doomdef.h"
 #include "doomkeys.h"
 #include "dstrings.h"
@@ -502,24 +503,24 @@ menu_t  SaveDef =
 //
 void M_ReadSaveStrings(void)
 {
-    FILE   *handle;
+    dg_file_handle_t handle;
     int     i;
     char    name[256];
 
-    for (i = 0;i < load_end;i++)
+    for (i = 0; i < load_end; i++)
     {
         M_StringCopy(name, P_SaveGameFile(i), sizeof(name));
 
-	handle = fopen(name, "rb");
+        handle = DG_FileOpen(name, DG_FILE_MODE_READ | DG_FILE_MODE_BINARY);
         if (handle == NULL)
         {
             M_StringCopy(savegamestrings[i], EMPTYSTRING, SAVESTRINGSIZE);
             LoadMenu[i].status = 0;
             continue;
         }
-	fread(&savegamestrings[i], 1, SAVESTRINGSIZE, handle);
-	fclose(handle);
-	LoadMenu[i].status = 1;
+        DG_FileRead(handle, &savegamestrings[i], SAVESTRINGSIZE);
+        DG_FileClose(handle);
+        LoadMenu[i].status = 1;
     }
 }
 

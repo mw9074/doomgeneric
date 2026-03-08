@@ -24,6 +24,7 @@
 #include "doomdef.h" 
 #include "doomkeys.h"
 #include "doomstat.h"
+#include "dg_file_interface.h"
 
 #include "deh_main.h"
 #include "deh_misc.h"
@@ -1550,8 +1551,8 @@ void G_DoLoadGame (void)
     int savedleveltime;
 	 
     gameaction = ga_nothing; 
-	 
-    save_stream = fopen(savename, "rb");
+
+    save_stream = DG_FileOpen (savename, DG_FILE_MODE_READ | DG_FILE_MODE_BINARY);
 
     if (save_stream == NULL)
     {
@@ -1562,7 +1563,7 @@ void G_DoLoadGame (void)
 
     if (!P_ReadSaveGameHeader())
     {
-        fclose(save_stream);
+        DG_FileClose (save_stream);
         return;
     }
 
@@ -1582,7 +1583,7 @@ void G_DoLoadGame (void)
     if (!P_ReadSaveGameEOF())
 	I_Error ("Bad savegame");
 
-    fclose(save_stream);
+    DG_FileClose (save_stream);
     
     if (setsizeneeded)
     	R_ExecuteSetViewSize ();
@@ -1616,7 +1617,7 @@ void G_DoSaveGame (void)
     // Open the savegame file for writing.
     // This may immediately clobber an existing savegame file,
     // but this approach simplifies the implementation.
-    save_stream = fopen(savegame_file, "wb");
+    save_stream = DG_FileOpen(savegame_file, DG_FILE_MODE_WRITE | DG_FILE_MODE_BINARY);
 
     if (save_stream == NULL)
     {
@@ -1638,14 +1639,14 @@ void G_DoSaveGame (void)
     // Enforce the same savegame size limit as in Vanilla Doom, 
     // except if the vanilla_savegame_limit setting is turned off.
 
-    if (vanilla_savegame_limit && ftell(save_stream) > SAVEGAMESIZE)
+    if (vanilla_savegame_limit && DG_FileTell(save_stream) > SAVEGAMESIZE)
     {
         I_Error ("Savegame buffer overrun");
     }
     
     // Finish up, close the savegame file.
 
-    fclose(save_stream);
+    DG_FileClose(save_stream);
     
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));

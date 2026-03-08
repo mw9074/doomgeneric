@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 
+#include "dg_file_interface.h"
 #include "m_misc.h"
 #include "w_file.h"
 #include "z_zone.h"
@@ -25,7 +26,7 @@
 typedef struct
 {
     wad_file_t wad;
-    FILE *fstream;
+    dg_file_handle_t fstream;
 } stdc_wad_file_t;
 
 extern wad_file_class_t stdc_wad_file;
@@ -33,9 +34,9 @@ extern wad_file_class_t stdc_wad_file;
 static wad_file_t *W_StdC_OpenFile(char *path)
 {
     stdc_wad_file_t *result;
-    FILE *fstream;
+    dg_file_handle_t fstream;
 
-    fstream = fopen(path, "rb");
+    fstream = DG_FileOpen(path, DG_FILE_MODE_READ | DG_FILE_MODE_BINARY);
 
     if (fstream == NULL)
     {
@@ -47,7 +48,7 @@ static wad_file_t *W_StdC_OpenFile(char *path)
     result = Z_Malloc(sizeof(stdc_wad_file_t), PU_STATIC, 0);
     result->wad.file_class = &stdc_wad_file;
     result->wad.mapped = NULL;
-    result->wad.length = M_FileLength(fstream);
+    result->wad.length = (unsigned int)M_FileLength(fstream);
     result->fstream = fstream;
 
     return &result->wad;
@@ -59,7 +60,7 @@ static void W_StdC_CloseFile(wad_file_t *wad)
 
     stdc_wad = (stdc_wad_file_t *) wad;
 
-    fclose(stdc_wad->fstream);
+    DG_FileClose(stdc_wad->fstream);
     Z_Free(stdc_wad);
 }
 
@@ -76,11 +77,11 @@ size_t W_StdC_Read(wad_file_t *wad, unsigned int offset,
 
     // Jump to the specified position in the file.
 
-    fseek(stdc_wad->fstream, offset, SEEK_SET);
+    DG_FileSeek(stdc_wad->fstream, (long)offset, DG_FILE_SEEK_SET);
 
     // Read into the buffer.
 
-    result = fread(buffer, 1, buffer_len, stdc_wad->fstream);
+    result = DG_FileRead(stdc_wad->fstream, buffer, buffer_len);
 
     return result;
 }

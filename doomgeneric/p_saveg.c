@@ -36,7 +36,7 @@
 #define SAVEGAME_EOF 0x1d
 #define VERSIONSIZE 16 
 
-FILE *save_stream;
+dg_file_handle_t save_stream;
 int savegamelength;
 boolean savegame_error;
 
@@ -66,7 +66,7 @@ static byte saveg_read8(void)
 {
     byte result;
 
-    if (fread(&result, 1, 1, save_stream) < 1)
+    if (DG_FileRead(save_stream, &result, 1) < 1)
     {
         if (!savegame_error)
         {
@@ -82,7 +82,7 @@ static byte saveg_read8(void)
 
 static void saveg_write8(byte value)
 {
-    if (fwrite(&value, 1, 1, save_stream) < 1)
+    if (DG_FileWrite(save_stream, &value, 1) < 1)
     {
         if (!savegame_error)
         {
@@ -137,7 +137,7 @@ static void saveg_read_pad(void)
     int padding;
     int i;
 
-    pos = ftell(save_stream);
+    pos = DG_FileTell(save_stream);
 
     padding = (4 - (pos & 3)) & 3;
 
@@ -153,7 +153,7 @@ static void saveg_write_pad(void)
     int padding;
     int i;
 
-    pos = ftell(save_stream);
+    pos = DG_FileTell(save_stream);
 
     padding = (4 - (pos & 3)) & 3;
 

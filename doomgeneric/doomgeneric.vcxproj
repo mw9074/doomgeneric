@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="am_map.c" />
+    <ClCompile Include="dg_file_stdio.c" />
     <ClCompile Include="doomdef.c" />
     <ClCompile Include="doomgeneric.c" />
     <ClCompile Include="doomgeneric_win.c" />
@@ -261,6 +262,7 @@
     <ClInclude Include="d_textur.h" />
     <ClInclude Include="d_think.h" />
     <ClInclude Include="d_ticcmd.h" />
+    <ClInclude Include="dg_file_interface.h" />
     <ClInclude Include="f_finale.h" />
     <ClInclude Include="f_wipe.h" />
     <ClInclude Include="gusconf.h" />
