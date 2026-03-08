@@ -27,7 +27,6 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include "config.h"
 #include "v_video.h"
-#include "m_argv.h"
 #include "d_event.h"
 #include "d_main.h"
 #include "i_video.h"
@@ -307,18 +306,10 @@ void I_InitGraphics(void)
 	printf("I_InitGraphics: DOOM screen size: w x h: %d x %d\n", SCREENWIDTH, SCREENHEIGHT);
 
 
-	i = M_CheckParmWithArgs("-scaling", 1);
-	if (i > 0) {
-		i = atoi(myargv[i + 1]);
-		fb_scaling = i;
-		printf("I_InitGraphics: Scaling factor: %d\n", fb_scaling);
-	}
-	else {
-		fb_scaling = s_Fb.xres / SCREENWIDTH;
-		if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
-			fb_scaling = s_Fb.yres / SCREENHEIGHT;
-		printf("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
-	}
+	fb_scaling = s_Fb.xres / SCREENWIDTH;
+	if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
+		fb_scaling = s_Fb.yres / SCREENHEIGHT;
+	printf("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
 
 
 	/* Allocate screen to draw to */

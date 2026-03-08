@@ -28,7 +28,6 @@
 
 #include "i_sound.h"
 #include "i_video.h"
-#include "m_argv.h"
 #include "m_config.h"
 
 // Sound sample rate to use for digital output (Hz)
@@ -148,7 +147,7 @@ void I_InitSound(boolean use_sfx_prefix)
     // Disable all sound output.
     //
 
-    nosound = M_CheckParm("-nosound") > 0;
+    nosound = 0;
 
     //!
     // @vanilla
@@ -156,7 +155,7 @@ void I_InitSound(boolean use_sfx_prefix)
     // Disable sound effects. 
     //
 
-    nosfx = M_CheckParm("-nosfx") > 0;
+    nosfx = 0;
 
     //!
     // @vanilla
@@ -164,7 +163,7 @@ void I_InitSound(boolean use_sfx_prefix)
     // Disable music.
     //
 
-    nomusic = M_CheckParm("-nomusic") > 0;
+    nomusic = 0;
 
     // Initialize the sound and music subsystems.
 

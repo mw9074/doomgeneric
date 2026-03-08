@@ -268,7 +268,7 @@ int main(int argc, char** argv)
 	si.xres = DEFAULT_SCREEN_WIDTH;
 	si.yres = DEFAULT_SCREEN_HEIGHT;
 
-	doomgeneric_Create(argc, argv, &si);
+	doomgeneric_Create(&si);
 
 	for (int i = 0; ; i++)
 	{

@@ -27,7 +27,6 @@
 #include "i_system.h"
 
 #include "doomdef.h"
-#include "m_argv.h"
 #include "m_misc.h"
 #include "p_local.h"
 
@@ -1395,29 +1394,7 @@ static void SpechitOverrun(line_t *ld)
    
     if (baseaddr == 0)
     {
-        int p;
-
-        // This is the first time we have had an overrun.  Work out
-        // what base address we are going to use.
-        // Allow a spechit value to be specified on the command line.
-
-        //!
-        // @category compat
-        // @arg <n>
-        //
-        // Use the specified magic value when emulating spechit overruns.
-        //
-
-        p = M_CheckParmWithArgs("-spechit", 1);
-        
-        if (p > 0)
-        {
-            M_StrToInt(myargv[p+1], (int *) &baseaddr);
-        }
-        else
-        {
-            baseaddr = DEFAULT_SPECHIT_MAGIC;
-        }
+        baseaddr = DEFAULT_SPECHIT_MAGIC;
     }
     
     // Calculate address used in doom2.exe

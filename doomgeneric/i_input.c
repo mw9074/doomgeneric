@@ -31,7 +31,6 @@
 #include "i_timer.h"
 #include "i_video.h"
 #include "i_scale.h"
-#include "m_argv.h"
 #include "m_config.h"
 #include "m_misc.h"
 #include "tables.h"

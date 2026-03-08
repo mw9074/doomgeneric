@@ -34,7 +34,6 @@
 
 #include "deh_str.h"
 #include "doomtype.h"
-#include "m_argv.h"
 #include "m_config.h"
 #include "m_misc.h"
 #include "i_joystick.h"
@@ -130,26 +129,9 @@ byte *I_ZoneBase (int *size)
 {
     byte *zonemem;
     int min_ram, default_ram;
-    int p;
 
-    //!
-    // @arg <mb>
-    //
-    // Specify the heap size, in MiB (default 16).
-    //
-
-    p = M_CheckParmWithArgs("-mb", 1);
-
-    if (p > 0)
-    {
-        default_ram = atoi(myargv[p+1]);
-        min_ram = default_ram;
-    }
-    else
-    {
-        default_ram = DEFAULT_RAM;
-        min_ram = MIN_RAM;
-    }
+    default_ram = DEFAULT_RAM;
+    min_ram = MIN_RAM;
 
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
 
@@ -382,7 +364,7 @@ void I_Error (char *error, ...)
         entry = entry->next;
     }
 
-    exit_gui_popup = !M_ParmExists("-nogui");
+    exit_gui_popup = 1;
 
     // Pop up a GUI dialog box to show the error message, if the
     // game was not run from the console (and the user will
@@ -475,60 +457,6 @@ static const unsigned char *dos_mem_dump = mem_dump_dos622;
 
 boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
 {
-    static boolean firsttime = true;
-
-    if (firsttime)
-    {
-        int p, i, val;
-
-        firsttime = false;
-        i = 0;
-
-        //!
-        // @category compat
-        // @arg <version>
-        //
-        // Specify DOS version to emulate for NULL pointer dereference
-        // emulation.  Supported versions are: dos622, dos71, dosbox.
-        // The default is to emulate DOS 7.1 (Windows 98).
-        //
-
-        p = M_CheckParmWithArgs("-setmem", 1);
-
-        if (p > 0)
-        {
-            if (!strcasecmp(myargv[p + 1], "dos622"))
-            {
-                dos_mem_dump = mem_dump_dos622;
-            }
-            if (!strcasecmp(myargv[p + 1], "dos71"))
-            {
-                dos_mem_dump = mem_dump_win98;
-            }
-            else if (!strcasecmp(myargv[p + 1], "dosbox"))
-            {
-                dos_mem_dump = mem_dump_dosbox;
-            }
-            else
-            {
-                for (i = 0; i < DOS_MEM_DUMP_SIZE; ++i)
-                {
-                    ++p;
-
-                    if (p >= myargc || myargv[p][0] == '-')
-                    {
-                        break;
-                    }
-
-                    M_StrToInt(myargv[p], &val);
-                    mem_dump_custom[i++] = (unsigned char) val;
-                }
-
-                dos_mem_dump = mem_dump_custom;
-            }
-        }
-    }
-
     switch (size)
     {
     case 1:

@@ -96,9 +96,6 @@
     <ClCompile Include="info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="m_argv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="m_bbox.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -238,9 +235,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="w_file_stdc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="w_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="w_wad.c">
@@ -389,9 +383,6 @@
     <ClInclude Include="info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="m_argv.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="m_bbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -537,9 +528,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="w_file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="w_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="w_merge.h">

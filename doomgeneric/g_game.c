@@ -31,7 +31,6 @@
 
 #include "z_zone.h"
 #include "f_finale.h"
-#include "m_argv.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -1985,17 +1984,6 @@ void G_RecordDemo (char *name)
     M_snprintf(demoname, demoname_size, "%s.lmp", name);
     maxsize = 0x20000;
 
-    //!
-    // @arg <size>
-    // @category demo
-    // @vanilla
-    //
-    // Specify the demo buffer size (KiB)
-    //
-
-    i = M_CheckParmWithArgs("-maxdemo", 1);
-    if (i)
-	maxsize = atoi(myargv[i+1])*1024;
     demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
     demoend = demobuffer + maxsize;
 	
@@ -2031,7 +2019,7 @@ void G_BeginRecording (void)
     // Record a high resolution "Doom 1.91" demo.
     //
 
-    longtics = M_CheckParm("-longtics") != 0;
+    longtics = 0;
 
     // If not recording a longtics demo, record in low res
 
@@ -2163,8 +2151,7 @@ void G_DoPlayDemo (void)
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	playeringame[i] = *demo_p++; 
 
-    if (playeringame[1] || M_CheckParm("-solo-net") > 0
-                        || M_CheckParm("-netdemo") > 0)
+    if (playeringame[1])
     {
 	netgame = true;
 	netdemo = true;
@@ -2191,7 +2178,7 @@ void G_TimeDemo (char* name)
     // Disable rendering the screen entirely.
     //
 
-    nodrawers = M_CheckParm ("-nodraw"); 
+    nodrawers = 0; 
 
     timingdemo = true; 
     singletics = true; 

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-void doomgeneric_Create(int argc, char **argv, const dg_screen_info_t* screen_info);
+void doomgeneric_Create(const dg_screen_info_t* screen_info);
 void doomgeneric_Tick();
 
 

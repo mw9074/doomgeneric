@@ -29,7 +29,6 @@
 #include "deh_main.h"
 #include "i_system.h"
 #include "z_zone.h"
-#include "m_argv.h"
 #include "m_misc.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -1186,56 +1185,12 @@ static void DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic,
 
     if (first)
     {
-        int p;
-
         // This is the first time we have had an overrun.
         first = 0;
 
         // Default values
         tmp_s3_floorheight = DONUT_FLOORHEIGHT_DEFAULT;
         tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
-
-        //!
-        // @category compat
-        // @arg <x> <y>
-        //
-        // Use the specified magic values when emulating behavior caused
-        // by memory overruns from improperly constructed donuts.
-        // In Vanilla Doom this can differ depending on the operating
-        // system.  The default (if this option is not specified) is to
-        // emulate the behavior when running under Windows 98.
-
-        p = M_CheckParmWithArgs("-donut", 2);
-
-        if (p > 0)
-        {
-            // Dump of needed memory: (fixed_t)0000:0000 and (short)0000:0008
-            //
-            // C:\>debug
-            // -d 0:0
-            //
-            // DOS 6.22:
-            // 0000:0000    (57 92 19 00) F4 06 70 00-(16 00)
-            // DOS 7.1:
-            // 0000:0000    (9E 0F C9 00) 65 04 70 00-(16 00)
-            // Win98:
-            // 0000:0000    (00 00 00 00) 65 04 70 00-(16 00)
-            // DOSBox under XP:
-            // 0000:0000    (00 00 00 F1) ?? ?? ?? 00-(07 00)
-
-            M_StrToInt(myargv[p + 1], &tmp_s3_floorheight);
-            M_StrToInt(myargv[p + 2], &tmp_s3_floorpic);
-
-            if (tmp_s3_floorpic >= numflats)
-            {
-                fprintf(stderr,
-                        "DonutOverrun: The second parameter for \"-donut\" "
-                        "switch should be greater than 0 and less than number "
-                        "of flats (%d). Using default value (%d) instead. \n",
-                        numflats, DONUT_FLOORPIC_DEFAULT);
-                tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
-            }
-        }
     }
 
     /*

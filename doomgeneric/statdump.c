@@ -25,7 +25,6 @@
 
 #include "d_player.h"
 #include "d_mode.h"
-#include "m_argv.h"
 
 #include "statdump.h"
 
@@ -49,12 +48,7 @@ static int num_captured_stats = 0;
 
 void StatCopy(wbstartstruct_t *stats)
 {
-    if (M_ParmExists("-statdump") && num_captured_stats < MAX_CAPTURES)
-    {
-        memcpy(&captured_stats[num_captured_stats], stats,
-               sizeof(wbstartstruct_t));
-        ++num_captured_stats;
-    }
+    (void)stats;
 }
 
 void StatDump(void)

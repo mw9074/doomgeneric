@@ -184,7 +184,6 @@
     <ClCompile Include="i_timer.c" />
     <ClCompile Include="i_video.c" />
     <ClCompile Include="memio.c" />
-    <ClCompile Include="m_argv.c" />
     <ClCompile Include="m_bbox.c" />
     <ClCompile Include="m_cheat.c" />
     <ClCompile Include="m_config.c" />
@@ -232,7 +231,6 @@
     <ClCompile Include="w_checksum.c" />
     <ClCompile Include="w_file.c" />
     <ClCompile Include="w_file_stdc.c" />
-    <ClCompile Include="w_main.c" />
     <ClCompile Include="w_wad.c" />
     <ClCompile Include="z_zone.c" />
   </ItemGroup>
@@ -281,7 +279,6 @@
     <ClInclude Include="i_timer.h" />
     <ClInclude Include="i_video.h" />
     <ClInclude Include="memio.h" />
-    <ClInclude Include="m_argv.h" />
     <ClInclude Include="m_bbox.h" />
     <ClInclude Include="m_cheat.h" />
     <ClInclude Include="m_config.h" />
@@ -331,7 +328,6 @@
     <ClInclude Include="wi_stuff.h" />
     <ClInclude Include="w_checksum.h" />
     <ClInclude Include="w_file.h" />
-    <ClInclude Include="w_main.h" />
     <ClInclude Include="w_merge.h" />
     <ClInclude Include="w_wad.h" />
     <ClInclude Include="z_zone.h" />

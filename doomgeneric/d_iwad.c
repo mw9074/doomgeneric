@@ -27,7 +27,6 @@
 #include "doomkeys.h"
 #include "d_iwad.h"
 #include "i_system.h"
-#include "m_argv.h"
 #include "m_config.h"
 #include "m_misc.h"
 #include "w_wad.h"
@@ -603,49 +602,19 @@ char *D_TryFindWADByName(char *filename)
 char *D_FindIWAD(int mask, GameMission_t *mission)
 {
     char *result;
-    char *iwadfile;
-    int iwadparm;
     int i;
 
-    // Check for the -iwad parameter
+    // Search through the list and look for an IWAD
 
-    //!
-    // Specify an IWAD file to use.
-    //
-    // @arg <file>
-    //
+    printf("-iwad not specified, trying a few iwad names\n");
 
-    iwadparm = M_CheckParmWithArgs("-iwad", 1);
+    result = NULL;
 
-    if (iwadparm)
-    {
-        // Search through IWAD dirs for an IWAD with the given name.
-
-        iwadfile = myargv[iwadparm + 1];
-
-        result = D_FindWADByName(iwadfile);
-
-        if (result == NULL)
-        {
-            I_Error("IWAD file '%s' not found!", iwadfile);
-        }
-        
-        *mission = IdentifyIWADByName(result, mask);
-    }
-    else
-    {
-        // Search through the list and look for an IWAD
-
-        printf("-iwad not specified, trying a few iwad names\n");
-
-        result = NULL;
-
-        BuildIWADDirList();
+    BuildIWADDirList();
     
-        for (i=0; result == NULL && i<num_iwad_dirs; ++i)
-        {
-            result = SearchDirectoryForIWAD(iwad_dirs[i], mask, mission);
-        }
+    for (i=0; result == NULL && i<num_iwad_dirs; ++i)
+    {
+        result = SearchDirectoryForIWAD(iwad_dirs[i], mask, mission);
     }
 
     return result;

@@ -22,7 +22,6 @@
 #include "doomfeatures.h"
 
 #include "d_main.h"
-#include "m_argv.h"
 #include "m_menu.h"
 #include "m_misc.h"
 #include "i_system.h"
@@ -152,38 +151,13 @@ static void SaveGameSettings(net_gamesettings_t *settings)
     settings->respawn_monsters = respawnparm;
     settings->timelimit = timelimit;
 
-    settings->lowres_turn = M_CheckParm("-record") > 0
-                         && M_CheckParm("-longtics") == 0;
+    settings->lowres_turn = 0;
 }
 
 static void InitConnectData(net_connect_data_t *connect_data)
 {
     connect_data->max_players = MAXPLAYERS;
     connect_data->drone = false;
-
-    //!
-    // @category net
-    //
-    // Run as the left screen in three screen mode.
-    //
-
-    if (M_CheckParm("-left") > 0)
-    {
-        viewangleoffset = ANG90;
-        connect_data->drone = true;
-    }
-
-    //! 
-    // @category net
-    //
-    // Run as the right screen in three screen mode.
-    //
-
-    if (M_CheckParm("-right") > 0)
-    {
-        viewangleoffset = ANG270;
-        connect_data->drone = true;
-    }
 
     //
     // Connect data
@@ -196,8 +170,7 @@ static void InitConnectData(net_connect_data_t *connect_data)
 
     // Are we recording a demo? Possibly set lowres turn mode
 
-    connect_data->lowres_turn = M_CheckParm("-record") > 0
-                             && M_CheckParm("-longtics") == 0;
+    connect_data->lowres_turn = 0;
 
     // Read checksums of our WAD directory and dehacked information
 
@@ -214,19 +187,6 @@ void D_ConnectNetGame(void)
 
     InitConnectData(&connect_data);
     netgame = D_InitNetGame(&connect_data);
-
-    //!
-    // @category net
-    //
-    // Start the game playing as though in a netgame with a single
-    // player.  This can also be used to play back single player netgame
-    // demos.
-    //
-
-    if (M_CheckParm("-solo-net") > 0)
-    {
-        netgame = true;
-    }
 }
 
 //
@@ -260,18 +220,10 @@ void D_CheckNetGame (void)
     {
         // Gross hack to work like Vanilla:
 
-        if (timelimit == 20 && M_CheckParm("-avg"))
-        {
-            DEH_printf("Austin Virtual Gaming: Levels will end "
-                           "after 20 minutes\n");
-        }
-        else
-        {
-            DEH_printf("Levels will end after %d minute", timelimit);
-            if (timelimit > 1)
-                printf("s");
-            printf(".\n");
-        }
+        DEH_printf("Levels will end after %d minute", timelimit);
+        if (timelimit > 1)
+            printf("s");
+        printf(".\n");
     }
 }
 
