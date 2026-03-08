@@ -93,5 +93,3 @@
 /* Version number of package */
 #define VERSION 0.1
 
-/* Define to 1 if you want to compile the unmodified code */
-#undef ORIGCODE

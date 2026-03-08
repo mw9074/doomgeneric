@@ -1610,107 +1610,8 @@ static const int scantokey[128] =
 
 static void SaveDefaultCollection(default_collection_t *collection)
 {
-#if ORIGCODE
-    default_t *defaults;
-    int i, v;
-    FILE *f;
-	
-    f = fopen (collection->filename, "w");
-    if (!f)
-	return; // can't write the file, but don't complain
-
-    defaults = collection->defaults;
-		
-    for (i=0 ; i<collection->numdefaults ; i++)
-    {
-        int chars_written;
-
-        // Ignore unbound variables
-
-        if (!defaults[i].bound)
-        {
-            continue;
-        }
-
-        // Print the name and line up all values at 30 characters
-
-        chars_written = fprintf(f, "%s ", defaults[i].name);
-
-        for (; chars_written < 30; ++chars_written)
-            fprintf(f, " ");
-
-        // Print the value
-
-        switch (defaults[i].type) 
-        {
-            case DEFAULT_KEY:
-
-                // use the untranslated version if we can, to reduce
-                // the possibility of screwing up the user's config
-                // file
-                
-                v = * (int *) defaults[i].location;
-
-                if (v == KEY_RSHIFT)
-                {
-                    // Special case: for shift, force scan code for
-                    // right shift, as this is what Vanilla uses.
-                    // This overrides the change check below, to fix
-                    // configuration files made by old versions that
-                    // mistakenly used the scan code for left shift.
-
-                    v = 54;
-                }
-                else if (defaults[i].untranslated
-                      && v == defaults[i].original_translated)
-                {
-                    // Has not been changed since the last time we
-                    // read the config file.
-
-                    v = defaults[i].untranslated;
-                }
-                else
-                {
-                    // search for a reverse mapping back to a scancode
-                    // in the scantokey table
-
-                    int s;
-
-                    for (s=0; s<128; ++s)
-                    {
-                        if (scantokey[s] == v)
-                        {
-                            v = s;
-                            break;
-                        }
-                    }
-                }
-
-	        fprintf(f, "%i", v);
-                break;
-
-            case DEFAULT_INT:
-	        fprintf(f, "%i", * (int *) defaults[i].location);
-                break;
-
-            case DEFAULT_INT_HEX:
-	        fprintf(f, "0x%x", * (int *) defaults[i].location);
-                break;
-
-            case DEFAULT_FLOAT:
-                fprintf(f, "%f", * (float *) defaults[i].location);
-                break;
-
-            case DEFAULT_STRING:
-	        fprintf(f,"\"%s\"", * (char **) (defaults[i].location));
-                break;
-        }
-
-        fprintf(f, "\n");
-    }
-
-    fclose (f);
-#endif
+    /* ORIGCODE removed */
+	(void)collection;
 }
 
 // Parses integer values in the configuration file
@@ -1772,65 +1673,8 @@ static void SetVariable(default_t *def, char *value)
 
 static void LoadDefaultCollection(default_collection_t *collection)
 {
-#if ORIGCODE
-    FILE *f;
-    default_t *def;
-    char defname[80];
-    char strparm[100];
-
-    // read the file in, overriding any set defaults
-    f = fopen(collection->filename, "r");
-
-    if (f == NULL)
-    {
-        // File not opened, but don't complain. 
-        // It's probably just the first time they ran the game.
-
-        return;
-    }
-
-    while (!feof(f))
-    {
-        if (fscanf(f, "%79s %99[^\n]\n", defname, strparm) != 2)
-        {
-            // This line doesn't match
-
-            continue;
-        }
-
-        // Find the setting in the list
-
-        def = SearchCollection(collection, defname);
-
-        if (def == NULL || !def->bound)
-        {
-            // Unknown variable?  Unbound variables are also treated
-            // as unknown.
-
-            continue;
-        }
-
-        // Strip off trailing non-printable characters (\r characters
-        // from DOS text files)
-
-        while (strlen(strparm) > 0 && !isprint(strparm[strlen(strparm)-1]))
-        {
-            strparm[strlen(strparm)-1] = '\0';
-        }
-
-        // Surrounded by quotes? If so, remove them.
-        if (strlen(strparm) >= 2
-         && strparm[0] == '"' && strparm[strlen(strparm) - 1] == '"')
-        {
-            strparm[strlen(strparm) - 1] = '\0';
-            memmove(strparm, strparm + 1, sizeof(strparm) - 1);
-        }
-
-        SetVariable(def, strparm);
-    }
-
-    fclose (f);
-#endif
+    /* ORIGCODE removed */
+    (void)collection;
 }
 
 // Set the default filenames to use for configuration files.
@@ -2077,9 +1921,6 @@ void M_SetConfigDir(char *dir)
 char *M_GetSaveGameDir(char *iwadname)
 {
     char *savegamedir;
-#if ORIGCODE
-    char *topdir;
-#endif
 
     // If not "doing" a configuration directory (Windows), don't "do"
     // a savegame directory, either.
@@ -2090,27 +1931,11 @@ char *M_GetSaveGameDir(char *iwadname)
     }
     else
     {
-#if ORIGCODE
-        // ~/.chocolate-doom/savegames
-
-        topdir = M_StringJoin(configdir, "savegame", NULL);
-        DG_MakeDirectory(topdir);
-
-        // eg. ~/.chocolate-doom/savegames/doom2.wad/
-
-        savegamedir = M_StringJoin(topdir, DIR_SEPARATOR_S, iwadname,
-                                   DIR_SEPARATOR_S, NULL);
-
-        DG_MakeDirectory(savegamedir);
-
-        free(topdir);
-#else
         savegamedir = M_StringJoin(configdir, DIR_SEPARATOR_S, ".savegame/", NULL);
 
         DG_MakeDirectory(savegamedir);
 
         printf ("Using %s for savegames\n", savegamedir);
-#endif
     }
 
     return savegamedir;

@@ -30,10 +30,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef ORIGCODE
-#include "SDL.h"
-#endif
-
 #include "config.h"
 
 #include "deh_str.h"
@@ -209,16 +205,8 @@ void I_PrintStartupBanner(char *gamedescription)
 
 boolean I_ConsoleStdout(void)
 {
-#ifdef _WIN32
-    // SDL "helpfully" always redirects stdout to a file.
-    return 0;
-#else
-#if ORIGCODE
-    return isatty(fileno(stdout));
-#else
+	/* ORIGCODE removed */
 	return 0;
-#endif
-#endif
 }
 
 //
@@ -256,12 +244,6 @@ void I_Quit (void)
         entry->func();
         entry = entry->next;
     }
-
-#if ORIGCODE
-    SDL_Quit();
-
-    exit(0);
-#endif
 }
 
 #if !defined(_WIN32) && !defined(__MACOSX__) && !defined(__DJGPP__)
@@ -366,9 +348,6 @@ void I_Error (char *error, ...)
     if (already_quitting)
     {
         fprintf(stderr, "Warning: recursive call to I_Error detected.\n");
-#if ORIGCODE
-        exit(-1);
-#endif
     }
     else
     {
@@ -461,13 +440,7 @@ void I_Error (char *error, ...)
 #endif
 
     // abort();
-#if ORIGCODE
-    SDL_Quit();
-
     exit(-1);
-#else
-    exit(-1);
-#endif
 }
 
 //
