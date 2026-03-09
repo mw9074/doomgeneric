@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "doomgeneric.h"
 #include "doomfeatures.h"
 
 #include "d_event.h"
@@ -172,7 +173,7 @@ static boolean BuildNewTic(void)
            return false;
     }
 
-    //printf ("mk:%i ",maketic);
+    //DG_Log ("mk:%i ",maketic);
     memset(&cmd, 0, sizeof(ticcmd_t));
     loop_interface->BuildTiccmd(&cmd, maketic);
 
@@ -259,7 +260,7 @@ static void D_Disconnected(void)
 
     // disconnected from server
 
-    printf("Disconnected from server.\n");
+    DG_Log("Disconnected from server.\n");
 }
 
 //
@@ -409,7 +410,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
                     NET_AddrToString(addr));
         }
 
-        printf("D_InitNetGame: Connected to %s\n", NET_AddrToString(addr));
+        DG_Log("D_InitNetGame: Connected to %s\n", NET_AddrToString(addr));
 
         // Wait for launch message received from server.
 
@@ -494,7 +495,7 @@ static void OldNetSync(void)
         if (maketic <= recvtic)
         {
             lasttime--;
-            // printf ("-");
+            // DG_Log ("-");
         }
 
         frameskip[frameon & 3] = oldnettics > recvtic;
@@ -503,7 +504,7 @@ static void OldNetSync(void)
         if (frameskip[0] && frameskip[1] && frameskip[2] && frameskip[3])
         {
             skiptics = 1;
-            // printf ("+");
+            // DG_Log ("+");
         }
     }
 }

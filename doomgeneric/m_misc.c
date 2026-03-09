@@ -23,6 +23,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "doomgeneric.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -171,7 +172,7 @@ void M_ExtractFileBase(char *path, char *dest)
     {
         if (length >= 8)
         {
-            printf("Warning: Truncated '%s' lump name to '%.8s'.\n",
+            DG_Log("Warning: Truncated '%s' lump name to '%.8s'.\n",
                    filename, dest);
             break;
         }

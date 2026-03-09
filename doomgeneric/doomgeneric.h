@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+// Replace this with a custom function (or printf) if logging is desired.
+#define DG_Log(...)
+//#define DG_Log printf
+
 #ifdef __cplusplus
 extern "C" {
 #endif

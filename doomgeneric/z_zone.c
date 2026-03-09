@@ -16,7 +16,7 @@
 //	Zone Memory Allocation. Neat.
 //
 
-
+#include "doomgeneric.h"
 #include "z_zone.h"
 #include "i_system.h"
 #include "doomtype.h"
@@ -331,16 +331,16 @@ Z_DumpHeap
 {
     memblock_t*	block;
 	
-    printf ("zone size: %i  location: %p\n",
+    DG_Log ("zone size: %i  location: %p\n",
 	    mainzone->size,mainzone);
     
-    printf ("tag range: %i to %i\n",
+    DG_Log ("tag range: %i to %i\n",
 	    lowtag, hightag);
 	
     for (block = mainzone->blocklist.next ; ; block = block->next)
     {
 	if (block->tag >= lowtag && block->tag <= hightag)
-	    printf ("block:%p    size:%7i    user:%p    tag:%3i\n",
+	    DG_Log ("block:%p    size:%7i    user:%p    tag:%3i\n",
 		    block, block->size, block->user, block->tag);
 		
 	if (block->next == &mainzone->blocklist)
@@ -350,13 +350,13 @@ Z_DumpHeap
 	}
 	
 	if ( (byte *)block + block->size != (byte *)block->next)
-	    printf ("ERROR: block size does not touch the next block\n");
+	    DG_Log ("ERROR: block size does not touch the next block\n");
 
 	if ( block->next->prev != block)
-	    printf ("ERROR: next block doesn't have proper back link\n");
+	    DG_Log ("ERROR: next block doesn't have proper back link\n");
 
 	if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-	    printf ("ERROR: two consecutive free blocks\n");
+	    DG_Log ("ERROR: two consecutive free blocks\n");
     }
 }
 

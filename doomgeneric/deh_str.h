@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 
+#include "doomgeneric.h"
 #include "doomfeatures.h"
 
 // Used to do dehacked text substitutions throughout the program
@@ -36,7 +37,7 @@ void DEH_AddStringReplacement(char *from_text, char *to_text);
 #else
 
 #define DEH_String(x) (x)
-#define DEH_printf printf
+#define DEH_printf DG_Log
 #define DEH_fprintf fprintf
 #define DEH_snprintf snprintf
 #define DEH_AddStringReplacement(x, y)

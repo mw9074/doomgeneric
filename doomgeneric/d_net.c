@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 
+#include "doomgeneric.h"
 #include "doomfeatures.h"
 
 #include "d_main.h"
@@ -122,7 +123,7 @@ static void LoadGameSettings(net_gamesettings_t *settings)
 
     if (lowres_turn)
     {
-        printf("NOTE: Turning resolution is reduced; this is probably "
+        DG_Log("NOTE: Turning resolution is reduced; this is probably "
                "because there is a client recording a Vanilla demo.\n");
     }
 
@@ -222,8 +223,8 @@ void D_CheckNetGame (void)
 
         DEH_printf("Levels will end after %d minute", timelimit);
         if (timelimit > 1)
-            printf("s");
-        printf(".\n");
+            DG_Log("s");
+        DG_Log(".\n");
     }
 }
 

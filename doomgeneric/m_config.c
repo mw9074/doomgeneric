@@ -1728,7 +1728,7 @@ void M_LoadDefaults (void)
     doom_defaults.filename
         = M_StringJoin(configdir, default_main_config, NULL);
 
-    printf("saving config in %s\n", doom_defaults.filename);
+    DG_Log("saving config in %s\n", doom_defaults.filename);
 
     extra_defaults.filename
         = M_StringJoin(configdir, default_extra_config, NULL);
@@ -1864,7 +1864,7 @@ void M_SetConfigDir(char *dir)
 
     if (strcmp(configdir, "") != 0)
     {
-        printf("Using %s for configuration and saves\n", configdir);
+        DG_Log("Using %s for configuration and saves\n", configdir);
     }
 
     // Make the directory if it doesn't already exist:
@@ -1894,7 +1894,7 @@ char *M_GetSaveGameDir(char *iwadname)
 
         DG_MakeDirectory(savegamedir);
 
-        printf ("Using %s for savegames\n", savegamedir);
+        DG_Log ("Using %s for savegames\n", savegamedir);
     }
 
     return savegamedir;

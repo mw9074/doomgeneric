@@ -156,7 +156,7 @@ void DG_Init()
 
 	if (!RegisterClassExA(&wc))
 	{
-		printf("Window Registration Failed!");
+		DG_Log("Window Registration Failed!");
 
 		exit(-1);
 	}
@@ -180,7 +180,7 @@ void DG_Init()
 	}
 	else
 	{
-		printf("Window Creation Failed!");
+		DG_Log("Window Creation Failed!");
 
 		exit(-1);
 	}

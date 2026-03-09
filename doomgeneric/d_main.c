@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "doomgeneric.h"
 #include "config.h"
 #include "deh_main.h"
 #include "doomdef.h"
@@ -424,7 +425,7 @@ void D_DoomLoop (void)
     if (bfgedition &&
         (demorecording || (gameaction == ga_playdemo) || netgame))
     {
-        printf(" WARNING: You are playing using one of the Doom Classic\n"
+        DG_Log(" WARNING: You are playing using one of the Doom Classic\n"
                " IWAD files shipped with the Doom 3: BFG Edition. These are\n"
                " known to be incompatible with the regular IWAD files and\n"
                " may cause demos and network games to get out of sync.\n");
@@ -655,7 +656,7 @@ static char *GetGameName(char *gamename)
             int version;
 
             // Has been replaced.
-            // We need to expand via printf to include the Doom version number
+            // We need to expand via DG_Log to include the Doom version number
             // We also need to cut off spaces to get the basic name
 
             gamename_size = strlen(deh_sub) + 10;
@@ -703,11 +704,11 @@ static void SetMissionForPackName(char *pack_name)
         }
     }
 
-    printf("Valid mission packs are:\n");
+    DG_Log("Valid mission packs are:\n");
 
     for (i = 0; i < arrlen(packs); ++i)
     {
-        printf("\t%s\n", packs[i].name);
+        DG_Log("\t%s\n", packs[i].name);
     }
 
     I_Error("Unknown mission pack name: %s", pack_name);
@@ -850,7 +851,7 @@ static boolean D_AddFile(char *filename)
 {
     wad_file_t *handle;
 
-    printf(" adding %s\n", filename);
+    DG_Log(" adding %s\n", filename);
     handle = W_AddFile(filename);
 
     return handle != NULL;
@@ -893,14 +894,14 @@ void PrintDehackedBanners(void)
 
         if (deh_s != copyright_banners[i])
         {
-            printf("%s", deh_s);
+            DG_Log("%s", deh_s);
 
             // Make sure the modified banner always ends in a newline character.
             // If it doesn't, add a newline.  This fixes av.wad.
 
             if (deh_s[strlen(deh_s) - 1] != '\n')
             {
-                printf("\n");
+                DG_Log("\n");
             }
         }
     }
@@ -999,7 +1000,7 @@ void PrintGameVersion(void)
     {
         if (gameversions[i].version == gameversion)
         {
-            printf("Emulating the behavior of the "
+            DG_Log("Emulating the behavior of the "
                    "'%s' executable.\n", gameversions[i].description);
             break;
         }
@@ -1055,7 +1056,7 @@ void D_DoomMain (void)
 
     if (M_CheckParm("-dedicated") > 0)
     {
-        printf("Dedicated server mode.\n");
+        DG_Log("Dedicated server mode.\n");
         NET_DedicatedServer();
 
         // Never returns
@@ -1198,7 +1199,7 @@ void D_DoomMain (void)
      || W_CheckNumForName("FF_END") >= 0)
     {
         I_PrintDivider();
-        printf(" WARNING: The loaded WAD file contains modified sprites or\n"
+        DG_Log(" WARNING: The loaded WAD file contains modified sprites or\n"
                " floor textures.  You may want to use the '-merge' command\n"
                " line option instead of '-file'.\n");
     }
@@ -1211,7 +1212,7 @@ void D_DoomMain (void)
     // message and give a link to the website.
     if (W_CheckNumForName("FREEDOOM") >= 0 && W_CheckNumForName("FREEDM") < 0)
     {
-        printf(" WARNING: You are playing using one of the Freedoom IWAD\n"
+        DG_Log(" WARNING: You are playing using one of the Freedoom IWAD\n"
                " files, which might not work in this port. See this page\n"
                " for more information on how to play using Freedoom:\n"
                "   http://www.chocolate-doom.org/wiki/index.php/Freedoom\n");
@@ -1226,7 +1227,7 @@ void D_DoomMain (void)
     I_InitMusic();
 
 #ifdef FEATURE_MULTIPLAYER
-    printf ("NET_Init: Init network subsystem.\n");
+    DG_Log ("NET_Init: Init network subsystem.\n");
     NET_Init ();
 #endif
 

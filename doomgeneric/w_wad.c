@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "doomgeneric.h"
 #include "doomtype.h"
 
 #include "config.h"
@@ -154,7 +155,7 @@ wad_file_t *W_AddFile (char *filename)
 
     if (wad_file == NULL)
     {
-		printf (" couldn't open %s\n", filename);
+		DG_Log (" couldn't open %s\n", filename);
 		return NULL;
     }
 
