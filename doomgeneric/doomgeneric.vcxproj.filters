@@ -548,5 +548,8 @@
     <ClInclude Include="dg_file_interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="doomgeneric_gfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
