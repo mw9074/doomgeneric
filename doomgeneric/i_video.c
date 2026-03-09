@@ -340,28 +340,32 @@ void DG_SetScreenSize(uint32_t width, uint32_t height)
 
 	bool size_changed = (width != s_DgScreenInfo.xres) || (height != s_DgScreenInfo.yres);
 
-	s_DgScreenInfo.xres = width;
-	s_DgScreenInfo.yres = height;
-
-	s_Fb.xres = s_DgScreenInfo.xres;
-	s_Fb.yres = s_DgScreenInfo.yres;
-	s_Fb.xres_virtual = s_Fb.xres;
-	s_Fb.yres_virtual = s_Fb.yres;
-
-	int old_scaling = fb_scaling;
-
-	fb_scaling = s_Fb.xres / SCREENWIDTH;
-	if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
-		fb_scaling = s_Fb.yres / SCREENHEIGHT;
-	if (fb_scaling != old_scaling)
+	if (size_changed)
 	{
-		DG_Log("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
+		s_DgScreenInfo.xres = width;
+		s_DgScreenInfo.yres = height;
+
+		s_Fb.xres = s_DgScreenInfo.xres;
+		s_Fb.yres = s_DgScreenInfo.yres;
+		s_Fb.xres_virtual = s_Fb.xres;
+		s_Fb.yres_virtual = s_Fb.yres;
+
+		int old_scaling = fb_scaling;
+
+		fb_scaling = s_Fb.xres / SCREENWIDTH;
+		if (s_Fb.yres / SCREENHEIGHT < fb_scaling)
+			fb_scaling = s_Fb.yres / SCREENHEIGHT;
+		if (fb_scaling != old_scaling)
+		{
+			DG_Log("I_InitGraphics: Auto-scaling factor: %d\n", fb_scaling);
+		}
 	}
 
 	size_t newSbSize = (size_t)(s_Fb.xres * s_Fb.yres * (s_Fb.bits_per_pixel / 8));
 	if (newSbSize > DG_ScreenBufferSize)
 	{
 		free(DG_ScreenBuffer);
+		DG_ScreenBufferSize = 0;
 
 		DG_ScreenBuffer = malloc(newSbSize);
 		if (DG_ScreenBuffer)
@@ -370,8 +374,11 @@ void DG_SetScreenSize(uint32_t width, uint32_t height)
 		}
 	}
 
-	// Clear out the buffer so unused pixels draw as black.
-	memset(DG_ScreenBuffer, 0, DG_ScreenBufferSize);
+	if (size_changed)
+	{
+		// Clear out the buffer so unused pixels draw as black.
+		memset(DG_ScreenBuffer, 0, DG_ScreenBufferSize);
+	}
 
 	DG_GraphicsUnlock();
 }
