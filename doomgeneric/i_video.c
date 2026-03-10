@@ -99,8 +99,8 @@ byte *I_VideoBuffer = NULL;
 
 // The screen buffer read by external code.
 
-size_t DG_ScreenBufferSize = 0;
-uint8_t* DG_ScreenBuffer = NULL;
+size_t doomgeneric_ScreenBufferSize = 0;
+uint8_t* doomgeneric_ScreenBuffer = NULL;
 
 // If true, game is running as a screensaver
 
@@ -216,7 +216,31 @@ void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
     }
 }
 
-void DG_GetScreenInfo(dg_screen_info_t* info)
+// Assumes DG_GraphicsLock() has been called
+static void doomgeneric_EnsureScreenBufferSize(size_t requiredSize, bool needClear)
+{
+	if (requiredSize > doomgeneric_ScreenBufferSize)
+	{
+		needClear = true;
+
+		free(doomgeneric_ScreenBuffer);
+		doomgeneric_ScreenBufferSize = 0;
+
+		doomgeneric_ScreenBuffer = malloc(requiredSize);
+		if (doomgeneric_ScreenBuffer)
+		{
+			doomgeneric_ScreenBufferSize = requiredSize;
+		}
+	}
+
+	if (needClear && doomgeneric_ScreenBuffer)
+	{
+		// Clear out the buffer so unused pixels draw as black.
+		memset(doomgeneric_ScreenBuffer, 0, doomgeneric_ScreenBufferSize);
+	}
+}
+
+void doomgeneric_GetScreenInfo(dg_screen_info_t* info)
 {
 	DG_GraphicsLock();
 
@@ -225,7 +249,7 @@ void DG_GetScreenInfo(dg_screen_info_t* info)
 	DG_GraphicsUnlock();
 }
 
-void DG_SetInitialScreenInfo(const dg_screen_info_t* screen_info)
+void doomgeneric_SetInitialScreenInfo(const dg_screen_info_t* screen_info)
 {
 	DG_GraphicsLock();
 
@@ -317,15 +341,7 @@ void I_InitGraphics(void)
 
 	/* Allocate the screen buffer read by external code. */
 	size_t newSbSize = (size_t)(s_Fb.xres * s_Fb.yres * (s_Fb.bits_per_pixel / 8));
-	if (newSbSize > DG_ScreenBufferSize)
-	{
-		free(DG_ScreenBuffer);
-		DG_ScreenBuffer = malloc(newSbSize);
-		if (DG_ScreenBuffer)
-		{
-			DG_ScreenBufferSize = newSbSize;
-		}
-	}
+	doomgeneric_EnsureScreenBufferSize(newSbSize, true);
 
 	screenvisible = true;
 	DG_GraphicsUnlock();
@@ -334,7 +350,7 @@ void I_InitGraphics(void)
 	I_InitInput();
 }
 
-void DG_SetScreenSize(uint32_t width, uint32_t height)
+void doomgeneric_SetScreenSize(uint32_t width, uint32_t height)
 {
 	DG_GraphicsLock();
 
@@ -362,23 +378,7 @@ void DG_SetScreenSize(uint32_t width, uint32_t height)
 	}
 
 	size_t newSbSize = (size_t)(s_Fb.xres * s_Fb.yres * (s_Fb.bits_per_pixel / 8));
-	if (newSbSize > DG_ScreenBufferSize)
-	{
-		free(DG_ScreenBuffer);
-		DG_ScreenBufferSize = 0;
-
-		DG_ScreenBuffer = malloc(newSbSize);
-		if (DG_ScreenBuffer)
-		{
-			DG_ScreenBufferSize = newSbSize;
-		}
-	}
-
-	if (size_changed)
-	{
-		// Clear out the buffer so unused pixels draw as black.
-		memset(DG_ScreenBuffer, 0, DG_ScreenBufferSize);
-	}
+	doomgeneric_EnsureScreenBufferSize(newSbSize, size_changed);
 
 	DG_GraphicsUnlock();
 }
@@ -389,9 +389,9 @@ void I_ShutdownGraphics(void)
 
 	Z_Free(I_VideoBuffer);
 
-	free(DG_ScreenBuffer);
-	DG_ScreenBuffer = NULL;
-	DG_ScreenBufferSize = 0;
+	free(doomgeneric_ScreenBuffer);
+	doomgeneric_ScreenBuffer = NULL;
+	doomgeneric_ScreenBufferSize = 0;
 
 	DG_GraphicsUnlock();
 }
@@ -433,7 +433,7 @@ void I_FinishUpdate (void)
 
     /* DRAW SCREEN */
     line_in  = (unsigned char *) I_VideoBuffer;
-    line_out = (unsigned char *) DG_ScreenBuffer;
+    line_out = (unsigned char *) doomgeneric_ScreenBuffer;
 
     y = SCREENHEIGHT;
 

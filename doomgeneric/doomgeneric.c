@@ -12,7 +12,11 @@ static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
 static unsigned int s_KeyQueueWriteIndex = 0;
 static unsigned int s_KeyQueueReadIndex = 0;
 
+// Implemented in d_main.c
 void D_DoomMain(void);
+
+// Implemented in i_video.c
+void doomgeneric_SetInitialScreenInfo(const dg_screen_info_t* screen_info);
 
 static unsigned short createControlKeyEvent(dg_key_state_t state, dg_control_key_t key);
 
@@ -22,7 +26,7 @@ void doomgeneric_Create(const dg_screen_info_t* screen_info)
 {
 	memset(s_KeyQueue, 0, sizeof(s_KeyQueue));
 
-	DG_SetInitialScreenInfo(screen_info);
+	doomgeneric_SetInitialScreenInfo(screen_info);
 	DG_Init();
 
 	D_DoomMain();

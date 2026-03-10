@@ -123,7 +123,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			// Make width even to avoid an issue with the internal scaling code.
 			width &= ~1;
 
-			DG_SetScreenSize((uint32_t)width, (uint32_t)height);
+			doomgeneric_SetScreenSize((uint32_t)width, (uint32_t)height);
 		}
 		return DefWindowProcA(hwnd, msg, wParam, lParam);
 	case WM_KEYDOWN:
@@ -140,12 +140,12 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 void DG_GraphicsLock()
 {
-    // Nothing to do here since all usage of DG_ScreenBuffer is done on the same thread.
+    // Nothing to do here since all usage of doomgeneric_ScreenBuffer is done on the same thread.
 }
 
 void DG_GraphicsUnlock()
 {
-    // Nothing to do here since all usage of DG_ScreenBuffer is done on the same thread.
+    // Nothing to do here since all usage of doomgeneric_ScreenBuffer is done on the same thread.
 }
 
 void DG_KeyStateLock()
@@ -186,7 +186,7 @@ void DG_Init()
 	}
 
 	dg_screen_info_t si;
-	DG_GetScreenInfo(&si);
+	doomgeneric_GetScreenInfo(&si);
 
 	RECT rect;
 	rect.left = rect.top = 0;
@@ -235,11 +235,11 @@ void DG_DrawFrame()
 	}
 
 	dg_screen_info_t si;
-	DG_GetScreenInfo(&si);
+	doomgeneric_GetScreenInfo(&si);
 	s_Bmi.bmiHeader.biWidth = si.xres;
 	s_Bmi.bmiHeader.biHeight = -((LONG)si.yres); // negative height to indicate top-down bitmap
 
-	StretchDIBits(s_Hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, DG_ScreenBuffer, &s_Bmi, 0, SRCCOPY);
+	StretchDIBits(s_Hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, doomgeneric_ScreenBuffer, &s_Bmi, 0, SRCCOPY);
 
 	SwapBuffers(s_Hdc);
 }

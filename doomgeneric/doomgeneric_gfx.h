@@ -38,20 +38,17 @@ typedef struct dg_screen_info {
 
 // DG_GraphicsLock() must be called before accessing this buffer and
 // DG_GraphicsUnlock() must be called when the buffer is no longer in use.
-extern uint8_t* DG_ScreenBuffer;
+extern uint8_t* doomgeneric_ScreenBuffer;
+
+// The width parameter must be an even value.
+void doomgeneric_SetScreenSize(uint32_t width, uint32_t height);
+
+void doomgeneric_GetScreenInfo(dg_screen_info_t* info);
 
 // Lock/Unlock the screen buffer and related variables.
 // Must be implemented by external code, must be reentrant.
 void DG_GraphicsLock();
 void DG_GraphicsUnlock();
-
-// This function is only intended to be called internally.
-void DG_SetInitialScreenInfo(const dg_screen_info_t* screen_info);
-
-// The width parameter must be an even value.
-void DG_SetScreenSize(uint32_t width, uint32_t height);
-
-void DG_GetScreenInfo(dg_screen_info_t* info);
 
 #ifdef __cplusplus
 }
