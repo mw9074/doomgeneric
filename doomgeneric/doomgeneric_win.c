@@ -1,7 +1,6 @@
-#include "doomkeys.h"
-
 #include "doomgeneric.h"
 #include "doomgeneric_gfx.h"
+#include "doomgeneric_keys.h"
 
 #include <stdio.h>
 
@@ -14,73 +13,88 @@ static BITMAPINFO s_Bmi = { sizeof(BITMAPINFOHEADER), DEFAULT_SCREEN_WIDTH, -DEF
 static HWND s_Hwnd = 0;
 static HDC s_Hdc = 0;
 
-
-#define KEYQUEUE_SIZE 16
-
-static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
-static unsigned int s_KeyQueueWriteIndex = 0;
-static unsigned int s_KeyQueueReadIndex = 0;
-
 static char s_FilesDir[260] = ".";
 
-static unsigned char convertToDoomKey(unsigned char key)
+static void addKeyEventToQueue(dg_key_state_t keyState, unsigned char keyCode)
 {
-	switch (key)
+	dg_control_key_t controlKey = DG_CONTROL_KEY_NONE;
+	char ch = 0;
+
+	switch (keyCode)
 	{
+	case VK_TAB:
+		controlKey = DG_CONTROL_KEY_TAB;
+		break;
 	case VK_RETURN:
-		key = KEY_ENTER;
+		controlKey = DG_CONTROL_KEY_ENTER;
 		break;
 	case VK_ESCAPE:
-		key = KEY_ESCAPE;
+		controlKey = DG_CONTROL_KEY_ESCAPE;
+		break;
+	case VK_BACK:
+		controlKey = DG_CONTROL_KEY_BACKSPACE;
+		break;
+	case VK_DELETE:
+		controlKey = DG_CONTROL_KEY_DELETE;
 		break;
 	case VK_LEFT:
-		key = KEY_LEFTARROW;
+		controlKey = DG_CONTROL_KEY_LEFT;
 		break;
 	case VK_RIGHT:
-		key = KEY_RIGHTARROW;
+		controlKey = DG_CONTROL_KEY_RIGHT;
 		break;
 	case VK_UP:
-		key = KEY_UPARROW;
+		controlKey = DG_CONTROL_KEY_UP;
 		break;
 	case VK_DOWN:
-		key = KEY_DOWNARROW;
+		controlKey = DG_CONTROL_KEY_DOWN;
+		break;
+	case VK_OEM_COMMA:
+		controlKey = DG_CONTROL_KEY_STRAFE_LEFT;
+		break;
+	case VK_OEM_PERIOD:
+		controlKey = DG_CONTROL_KEY_STRAFE_RIGHT;
 		break;
 	case VK_CONTROL:
-		key = KEY_FIRE;
+		controlKey = DG_CONTROL_KEY_FIRE;
 		break;
 	case VK_SPACE:
-		key = KEY_USE;
+		// If the spacebar is used, input both a control key
+		// event for the "use" action and a text key event
+		// for the space character, so that spaces can be
+		// used in save game names.
+		controlKey = DG_CONTROL_KEY_USE;
+		ch = ' ';
 		break;
 	case VK_SHIFT:
-		key = KEY_RSHIFT;
+		controlKey = DG_CONTROL_KEY_RUN;
 		break;
 	case VK_ADD:
 	case VK_OEM_PLUS:
-		// Increase size of rendered area
-		key = KEY_EQUALS;
+		controlKey = DG_CONTROL_KEY_SCREEN_EXPAND;
 		break;
 	case VK_SUBTRACT:
 	case VK_OEM_MINUS:
-		// Decrease size of rendered area
-		key = KEY_MINUS;
+		controlKey = DG_CONTROL_KEY_SCREEN_SHRINK;
 		break;
+	case VK_PAUSE:
+		controlKey = DG_CONTROL_KEY_PAUSE;
+		break;
+
 	default:
-		key = tolower(key);
+		ch = (char)keyCode;
 		break;
 	}
 
-	return key;
-}
-
-static void addKeyToQueue(int pressed, unsigned char keyCode)
-{
-	unsigned char key = convertToDoomKey(keyCode);
-
-	unsigned short keyData = (pressed << 8) | key;
-
-	s_KeyQueue[s_KeyQueueWriteIndex] = keyData;
-	s_KeyQueueWriteIndex++;
-	s_KeyQueueWriteIndex %= KEYQUEUE_SIZE;
+	if (controlKey)
+	{
+		doomgeneric_QueueControlKeyEvent(keyState, controlKey);
+	}
+	if (ch)
+	{
+		// If the key is not a control key, try adding it as a text key.
+		doomgeneric_QueueTextKeyEvent(keyState, ch);
+	}
 }
 
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -113,10 +127,10 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		}
 		return DefWindowProcA(hwnd, msg, wParam, lParam);
 	case WM_KEYDOWN:
-		addKeyToQueue(1, wParam);
+		addKeyEventToQueue(DG_KEY_STATE_PRESSED, (unsigned char)wParam);
 		break;
 	case WM_KEYUP:
-		addKeyToQueue(0, wParam);
+		addKeyEventToQueue(DG_KEY_STATE_RELEASED, (unsigned char)wParam);
 		break;
 	default:
 		return DefWindowProcA(hwnd, msg, wParam, lParam);
@@ -132,6 +146,16 @@ void DG_GraphicsLock()
 void DG_GraphicsUnlock()
 {
     // Nothing to do here since all usage of DG_ScreenBuffer is done on the same thread.
+}
+
+void DG_KeyStateLock()
+{
+	// Nothing to do here since all usage of the key handling is done on the same thread.
+}
+
+void DG_KeyStateUnlock()
+{
+	// Nothing to do here since all usage of the key handling is done on the same thread.
 }
 
 void DG_Init()
@@ -184,8 +208,6 @@ void DG_Init()
 
 		exit(-1);
 	}
-
-	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
 }
 
 char* DG_GetFilesDir()
@@ -230,27 +252,6 @@ void DG_SleepMs(uint32_t ms)
 uint32_t DG_GetTicksMs()
 {
 	return GetTickCount();
-}
-
-int DG_GetKey(int* pressed, unsigned char* doomKey)
-{
-	if (s_KeyQueueReadIndex == s_KeyQueueWriteIndex)
-	{
-		//key queue is empty
-
-		return 0;
-	}
-	else
-	{
-		unsigned short keyData = s_KeyQueue[s_KeyQueueReadIndex];
-		s_KeyQueueReadIndex++;
-		s_KeyQueueReadIndex %= KEYQUEUE_SIZE;
-
-		*pressed = keyData >> 8;
-		*doomKey = keyData & 0xFF;
-
-		return 1;
-	}
 }
 
 void DG_SetWindowTitle(const char * title)

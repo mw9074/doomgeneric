@@ -246,6 +246,7 @@
     <ClInclude Include="doomfeatures.h" />
     <ClInclude Include="doomgeneric.h" />
     <ClInclude Include="doomgeneric_gfx.h" />
+    <ClInclude Include="doomgeneric_keys.h" />
     <ClInclude Include="doomkeys.h" />
     <ClInclude Include="doomstat.h" />
     <ClInclude Include="doomtype.h" />

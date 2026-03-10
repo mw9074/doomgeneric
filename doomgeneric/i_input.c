@@ -38,7 +38,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
-#include "doomgeneric.h"
+#include "doomgeneric_keys.h"
 
 int vanilla_keyboard_mapping = 1;
 
@@ -282,7 +282,7 @@ void I_GetEvent(void)
     unsigned char key;
 
     
-	while (DG_GetKey(&pressed, &key))
+	while (doomgeneric_GetQueuedKeyEvent(&pressed, &key))
     {
         UpdateShiftStatus(pressed, key);
 

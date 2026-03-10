@@ -551,5 +551,8 @@
     <ClInclude Include="doomgeneric_gfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="doomgeneric_keys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
