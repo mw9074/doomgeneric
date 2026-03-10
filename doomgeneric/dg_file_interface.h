@@ -14,8 +14,8 @@
 // DESCRIPTION:
 //  doomgeneric file interface, enabling non-standard file function implementations.
 //
-#ifndef DG_FILE_INTERFACE
-#define DG_FILE_INTERFACE
+#ifndef DG_FILE_INTERFACE_H
+#define DG_FILE_INTERFACE_H
 
 #include <stddef.h>
 
@@ -71,4 +71,4 @@ long DG_FileTell(dg_file_handle_t handle);
 }
 #endif
 
-#endif // DG_FILE_INTERFACE
+#endif // DG_FILE_INTERFACE_H
