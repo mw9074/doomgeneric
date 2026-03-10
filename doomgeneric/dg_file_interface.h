@@ -19,8 +19,9 @@
 
 #include <stddef.h>
 
-// Comment out the following line if custom file functions are needed.
-#define DG_USE_STDIO_FILE_FUNCTIONS
+// Uncomment or otherwise define DG_USE_STDIO_FILE_FUNCTIONS if
+// doomgeneric should use the standard C file functions.
+//#define DG_USE_STDIO_FILE_FUNCTIONS
 
 #ifdef DG_USE_STDIO_FILE_FUNCTIONS
 
