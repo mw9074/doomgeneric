@@ -268,13 +268,6 @@ void D_Display (void)
 		}
     }
 
-    if (testcontrols)
-    {
-        // Box showing current mouse speed
-
-        V_DrawMouseSpeedBox(testcontrols_mousespeed);
-    }
-
     menuactivestate = menuactive;
     viewactivestate = viewactive;
     inhelpscreensstate = inhelpscreens;
@@ -448,11 +441,6 @@ void D_DoomLoop (void)
     R_ExecuteSetViewSize();
 
     D_StartGameLoop();
-
-    if (testcontrols)
-    {
-        wipegamestate = gamestate;
-    }
 
     doomgeneric_Tick();
 }

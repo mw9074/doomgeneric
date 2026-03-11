@@ -140,9 +140,6 @@ byte*		demoend;
 boolean         singledemo;            	// quit after playing a demo from cmdline 
  
 boolean         precache = true;        // if true, load all graphics at start 
-
-boolean         testcontrols = false;    // Invoked by setup to test controls
-int             testcontrols_mousespeed;
  
 
  
@@ -541,13 +538,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 	side += mousex*2; 
     else 
 	cmd->angleturn -= mousex*0x8; 
-
-    if (mousex == 0)
-    {
-        // No movement in the previous frame
-
-        testcontrols_mousespeed = 0;
-    }
     
     mousex = mousey = 0; 
 	 
@@ -666,11 +656,6 @@ void G_DoLoadLevel (void)
     sendpause = sendsave = paused = false;
     memset(mousearray, 0, sizeof(mousearray));
     memset(joyarray, 0, sizeof(joyarray));
-
-    if (testcontrols)
-    {
-        players[consoleplayer].message = "Press escape to quit.";
-    }
 } 
 
 static void SetJoyButtons(unsigned int buttons_mask)
@@ -777,16 +762,6 @@ boolean G_Responder (event_t* ev)
 	if (F_Responder (ev)) 
 	    return true;	// finale ate the event 
     } 
-
-    if (testcontrols && ev->type == ev_mouse)
-    {
-        // If we are invoked by setup to test the controls, save the 
-        // mouse speed so that we can display it on-screen.
-        // Perform a low pass filter on this so that the thermometer 
-        // appears to move smoothly.
-
-        testcontrols_mousespeed = abs(ev->data2);
-    }
 
     // If the next/previous weapon keys are pressed, set the next_weapon
     // variable to change weapons when the next ticcmd is generated.

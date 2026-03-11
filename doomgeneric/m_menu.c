@@ -1425,22 +1425,6 @@ boolean M_Responder (event_t* ev)
     static  int     mousex = 0;
     static  int     lastx = 0;
 
-    // In testcontrols mode, none of the function keys should do anything
-    // - the only key is escape to quit.
-
-    if (testcontrols)
-    {
-        if (ev->type == ev_quit
-         || (ev->type == ev_keydown
-          && (ev->data1 == key_menu_activate || ev->data1 == key_menu_quit)))
-        {
-            I_Quit();
-            return true;
-        }
-
-        return false;
-    }
-
     // "close" button pressed on window?
     if (ev->type == ev_quit)
     {
