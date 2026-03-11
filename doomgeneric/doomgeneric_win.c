@@ -150,6 +150,8 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_PAINT:
 		if (s_DoomCreated)
 		{
+			DG_GraphicsLock();
+
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 
@@ -160,6 +162,8 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			StretchDIBits(hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, doomgeneric_ScreenBuffer, &bmi, 0, SRCCOPY);
 
 			EndPaint(hwnd, &ps);
+
+			DG_GraphicsUnlock();
 		}
 		return 0;
 	case WM_KEYDOWN:
