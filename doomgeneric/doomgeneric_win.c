@@ -2,18 +2,36 @@
 #include "doomgeneric_gfx.h"
 #include "doomgeneric_keys.h"
 
-#include <stdio.h>
-
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <process.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define DEFAULT_SCREEN_WIDTH 640
 #define DEFAULT_SCREEN_HEIGHT 400
 
-static BITMAPINFO s_Bmi = { sizeof(BITMAPINFOHEADER), DEFAULT_SCREEN_WIDTH, -DEFAULT_SCREEN_HEIGHT, 1, 32 };
 static HWND s_Hwnd = 0;
-static HDC s_Hdc = 0;
 
 static char s_FilesDir[260] = ".";
+
+static bool s_DoomCreated = false;
+static bool s_ExitDoomThread = false;
+static HANDLE s_DoomThreadHandle = INVALID_HANDLE_VALUE;
+
+static CRITICAL_SECTION s_DoomGfxCs;
+static CRITICAL_SECTION s_DoomKeyStateCs;
+
+static void InitCriticalSections();
+
+static void DeleteCriticalSections();
+
+static bool CreateWinObjects();
+
+static void WinLoop();
+
+static unsigned __stdcall doomThread(void* param);
 
 static void addKeyEventToQueue(dg_key_state_t keyState, unsigned char keyCode)
 {
@@ -112,20 +130,38 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		ExitProcess(0);
 		break;
 	case WM_SIZE:
-		GetClientRect(hwnd, &rect);
-		width = rect.right - rect.left;
-		height = rect.bottom - rect.top;
-
-		// Only update the screen if it is at least
-		// as big as the internal screen buffer.
-		if (width >= 320 && height >= 200)
+		if (s_DoomCreated)
 		{
-			// Make width even to avoid an issue with the internal scaling code.
-			width &= ~1;
+			GetClientRect(hwnd, &rect);
+			width = rect.right - rect.left;
+			height = rect.bottom - rect.top;
 
-			doomgeneric_SetScreenSize((uint32_t)width, (uint32_t)height);
+			// Only update the screen if it is at least
+			// as big as the internal screen buffer.
+			if (width >= 320 && height >= 200)
+			{
+				// Make width even to avoid an issue with the internal scaling code.
+				width &= ~1;
+
+				doomgeneric_SetScreenSize((uint32_t)width, (uint32_t)height);
+			}
 		}
 		return DefWindowProcA(hwnd, msg, wParam, lParam);
+	case WM_PAINT:
+		if (s_DoomCreated)
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+
+			dg_screen_info_t si;
+			doomgeneric_GetScreenInfo(&si);
+
+			BITMAPINFO bmi = { sizeof(BITMAPINFOHEADER), si.xres, -((LONG)si.yres), 1, 32 };
+			StretchDIBits(hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, doomgeneric_ScreenBuffer, &bmi, 0, SRCCOPY);
+
+			EndPaint(hwnd, &ps);
+		}
+		return 0;
 	case WM_KEYDOWN:
 		addKeyEventToQueue(DG_KEY_STATE_PRESSED, (unsigned char)wParam);
 		break;
@@ -138,33 +174,25 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return 0;
 }
 
-void DG_GraphicsLock()
+static void InitCriticalSections()
 {
-    // Nothing to do here since all usage of doomgeneric_ScreenBuffer is done on the same thread.
+	InitializeCriticalSection(&s_DoomGfxCs);
+	InitializeCriticalSection(&s_DoomKeyStateCs);
 }
 
-void DG_GraphicsUnlock()
+static void DeleteCriticalSections()
 {
-    // Nothing to do here since all usage of doomgeneric_ScreenBuffer is done on the same thread.
+	DeleteCriticalSection(&s_DoomGfxCs);
+	DeleteCriticalSection(&s_DoomKeyStateCs);
 }
 
-void DG_KeyStateLock()
-{
-	// Nothing to do here since all usage of the key handling is done on the same thread.
-}
-
-void DG_KeyStateUnlock()
-{
-	// Nothing to do here since all usage of the key handling is done on the same thread.
-}
-
-void DG_Init()
+static bool CreateWinObjects()
 {
 	// window creation
 	const char windowClassName[] = "DoomWindowClass";
 	const char windowTitle[] = "Doom";
-	WNDCLASSEXA wc;
 
+	WNDCLASSEXA wc;
 	wc.cbSize = sizeof(WNDCLASSEXA);
 	wc.style = 0;
 	wc.lpfnWndProc = wndProc;
@@ -181,33 +209,70 @@ void DG_Init()
 	if (!RegisterClassExA(&wc))
 	{
 		DG_Log("Window Registration Failed!");
-
-		exit(-1);
+		return false;
 	}
-
-	dg_screen_info_t si;
-	doomgeneric_GetScreenInfo(&si);
 
 	RECT rect;
 	rect.left = rect.top = 0;
-	rect.right = si.xres;
-	rect.bottom = si.yres;
+	rect.right = DEFAULT_SCREEN_WIDTH;
+	rect.bottom = DEFAULT_SCREEN_HEIGHT;
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
 	HWND hwnd = CreateWindowExA(0, windowClassName, windowTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, 0, 0, 0, 0);
-	if (hwnd)
-	{
-		s_Hwnd = hwnd;
-
-		s_Hdc = GetDC(hwnd);
-		ShowWindow(hwnd, SW_SHOW);
-	}
-	else
+	if (!hwnd)
 	{
 		DG_Log("Window Creation Failed!");
-
-		exit(-1);
+		return false;
 	}
+
+	s_Hwnd = hwnd;
+	ShowWindow(hwnd, SW_SHOW);
+
+	return true;
+}
+
+static void WinLoop()
+{
+	MSG msg;
+	BOOL bRet;
+
+	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
+	{
+		if (bRet == -1)
+		{
+			// handle the error and possibly exit
+		}
+		else
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+}
+
+void DG_GraphicsLock()
+{
+	EnterCriticalSection(&s_DoomGfxCs);
+}
+
+void DG_GraphicsUnlock()
+{
+	LeaveCriticalSection(&s_DoomGfxCs);
+}
+
+void DG_KeyStateLock()
+{
+	EnterCriticalSection(&s_DoomKeyStateCs);
+}
+
+void DG_KeyStateUnlock()
+{
+	LeaveCriticalSection(&s_DoomKeyStateCs);
+}
+
+void DG_Init()
+{
+
 }
 
 char* DG_GetFilesDir()
@@ -225,23 +290,8 @@ char* DG_GetDefaultConfigDir()
 
 void DG_DrawFrame()
 {
-	MSG msg;
-	memset(&msg, 0, sizeof(msg));
-
-	while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE) > 0)
-	{
-		TranslateMessage(&msg);
-		DispatchMessageA(&msg);
-	}
-
-	dg_screen_info_t si;
-	doomgeneric_GetScreenInfo(&si);
-	s_Bmi.bmiHeader.biWidth = si.xres;
-	s_Bmi.bmiHeader.biHeight = -((LONG)si.yres); // negative height to indicate top-down bitmap
-
-	StretchDIBits(s_Hdc, 0, 0, si.xres, si.yres, 0, 0, si.xres, si.yres, doomgeneric_ScreenBuffer, &s_Bmi, 0, SRCCOPY);
-
-	SwapBuffers(s_Hdc);
+	// Trigger the DOOM window to redraw on the main thread.
+	InvalidateRect(s_Hwnd, NULL, FALSE);
 }
 
 void DG_SleepMs(uint32_t ms)
@@ -264,17 +314,45 @@ void DG_SetWindowTitle(const char * title)
 
 int main(int argc, char** argv)
 {
+	InitCriticalSections();
+
+	if (!CreateWinObjects())
+	{
+		DeleteCriticalSections();
+		return -1;
+	}
+
+	s_DoomThreadHandle = (HANDLE)_beginthreadex(NULL, 0, doomThread, NULL, 0, NULL);
+	if (s_DoomThreadHandle)
+	{
+		WinLoop();
+
+		// Signal the Doom thread to exit and wait for it to finish.
+		s_ExitDoomThread = true;
+		WaitForSingleObject(s_DoomThreadHandle, INFINITE);
+	}
+
+	DeleteCriticalSections();
+	return 0;
+}
+
+static unsigned __stdcall doomThread(void* param)
+{
+	(void)param;
+
 	dg_screen_info_t si = { 0 };
 	si.color_format = DG_COLOR_FORMAT_RGBA8888;
 	si.xres = DEFAULT_SCREEN_WIDTH;
 	si.yres = DEFAULT_SCREEN_HEIGHT;
 
 	doomgeneric_Create(&si);
+	s_DoomCreated = true;
 
-	for (int i = 0; ; i++)
+	while (!s_ExitDoomThread)
 	{
 		doomgeneric_Tick();
 	}
+	s_DoomCreated = false;
 
 	return 0;
 }
