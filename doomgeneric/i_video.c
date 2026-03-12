@@ -84,9 +84,9 @@ boolean palette_changed;
 uint8_t colors[256];
 
 #else  // CMAP256
-// R:8 G:8 B:8
-static uint8_t colors[256 * 3];
 
+// Current DOOM palette, converted to the current dg_color_format.
+static uint8_t colors[256 * 4];
 
 #endif  // CMAP256
 
@@ -127,93 +127,22 @@ int mouse_threshold = 10;
 
 int usegamma = 0;
 
-typedef struct
+
+static void cmap_to_fb(uint8_t* out, uint8_t* in, int in_pixels)
 {
-	byte r;
-	byte g;
-	byte b;
-} col_t;
+	int i, k;
+	size_t bytes_per_pix = s_Fb.bits_per_pixel / 8;
 
-// Palette converted to RGB565
+	for (i = 0; i < in_pixels; i++, in++)
+	{
+		uint8_t* pix = colors + (((int)(*in)) * bytes_per_pix);
 
-static uint16_t rgb565_palette[256];
-
-void cmap_to_rgb565(uint16_t * out, uint8_t * in, int in_pixels)
-{
-    int i, j;
-    const uint8_t* c;
-    uint16_t r, g, b;
-
-    for (i = 0; i < in_pixels; i++)
-    {
-        c = colors + ((int)*in) * 3;
-        r = ((uint16_t)(c[0] >> 3)) << 11;
-        g = ((uint16_t)(c[1] >> 2)) << 5;
-        b = ((uint16_t)(c[2] >> 3)) << 0;
-        *out = (r | g | b);
-
-        in++;
-        for (j = 0; j < fb_scaling; j++) {
-            out++;
-        }
-    }
-}
-
-void cmap_to_fb(uint8_t *out, uint8_t *in, int in_pixels)
-{
-    int i, k;
-    const uint8_t* c;
-    uint32_t pix;
-
-    for (i = 0; i < in_pixels; i++)
-    {
-        c = colors + ((int)*in) * 3;  // R:8 G:8 B:8
-
-        if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format)
-        {
-            // RGB565 packing
-            uint16_t p = ((c[0] & 0xF8) << 8) | // R
-                         ((c[1] & 0xFC) << 3) | // G
-                         (c[2] >> 3); // B
-
-#ifdef SYS_BIG_ENDIAN
-            p = swapeLE16(p); // can't use SHORT() because this needs to stay unsigned
-#endif
-            for (k = 0; k < fb_scaling; k++) {
-                *(uint16_t *)out = p;
-                out += 2;
-            }
-        }
-        else if (DG_COLOR_FORMAT_RGB888 == s_DgScreenInfo.color_format)
-        {
-            for (k = 0; k < fb_scaling; k++) {
-                out[0] = c[0];
-                out[1] = c[1];
-                out[2] = c[2];
-                out += 3;
-            }
-        }
-        else if (DG_COLOR_FORMAT_RGBA8888 == s_DgScreenInfo.color_format)
-        {
-            pix = (c[0] << s_Fb.red.offset) |
-                  (c[1] << s_Fb.green.offset) |
-                  (c[2] << s_Fb.blue.offset);
-
-#ifdef SYS_BIG_ENDIAN
-            pix = swapLE32(pix);
-#endif
-            for (k = 0; k < fb_scaling; k++) {
-                *(uint32_t *)out = pix;
-                out += 4;
-            }
-        }
-        else {
-            // no clue how to convert this
-            I_Error("No idea how to convert %d bpp pixels", s_Fb.bits_per_pixel);
-        }
-
-        in++;
-    }
+		for (k = 0; k < fb_scaling; k++)
+		{
+			memcpy(out, pix, bytes_per_pix);
+			out += bytes_per_pix;
+		}
+	}
 }
 
 // Assumes DG_GraphicsLock() has been called
@@ -456,7 +385,6 @@ void I_FinishUpdate (void)
                 }
             }
 #else
-            //cmap_to_rgb565((void*)line_out, (void*)line_in, SCREENWIDTH);
             cmap_to_fb((void*)line_out, (void*)line_in, SCREENWIDTH);
 #endif
             line_out += (SCREENWIDTH * fb_scaling * (s_Fb.bits_per_pixel/8)) + x_offset_end;
@@ -479,82 +407,69 @@ void I_ReadScreen (byte* scr)
 //
 // I_SetPalette
 //
-#define GFX_RGB565(r, g, b)			((((r & 0xF8) >> 3) << 11) | (((g & 0xFC) >> 2) << 5) | ((b & 0xF8) >> 3))
-#define GFX_RGB565_R(color)			((0xF800 & color) >> 11)
-#define GFX_RGB565_G(color)			((0x07E0 & color) >> 5)
-#define GFX_RGB565_B(color)			(0x001F & color)
-
-void I_SetPalette (byte* palette)
+void I_SetPalette(byte* palette)
 {
 	int i;
-	//col_t* c;
 
-	//for (i = 0; i < 256; i++)
-	//{
-	//	c = (col_t*)palette;
+	DG_GraphicsLock();
 
-	//	rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
-	//								   gammatable[usegamma][c->g],
-	//								   gammatable[usegamma][c->b]);
 
-	//	palette += 3;
-	//}
-    
 
-    /* performance boost:
-     * map to the right pixel format over here! */
+	if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format)
+	{
+		// Convert the palette to RGB565 format for faster blitting later.
+		uint16_t r, g, b, pix;
+		byte* pal = palette;
 
-    uint8_t* c = colors;
-    for (i=0; i<256; ++i ) {
-        c[0] = gammatable[usegamma][*palette++]; // R
-        c[1] = gammatable[usegamma][*palette++]; // G
-        c[2] = gammatable[usegamma][*palette++]; // B
-        c += 3;
-    }
+		for (i = 0; i < 256; i++)
+		{
+			r = gammatable[usegamma][*pal++];
+			g = gammatable[usegamma][*pal++];
+			b = gammatable[usegamma][*pal++];
+
+			pix = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+
+#ifdef SYS_BIG_ENDIAN
+			pix = swapLE16(pix); // can't use SHORT() because this needs to stay unsigned
+#endif
+			memcpy(&colors[i * 2], &pix, 2);
+		}
+	}
+	else if (DG_COLOR_FORMAT_RGB888 == s_DgScreenInfo.color_format ||
+		DG_COLOR_FORMAT_RGBA8888 == s_DgScreenInfo.color_format)
+	{
+		// Convert the palette to RGB888 or RGBA8888 format for faster blitting later.
+		uint32_t r, g, b, pix;
+		uint8_t* c = colors;
+		byte* pal = palette;
+
+		int incr = (DG_COLOR_FORMAT_RGBA8888 == s_DgScreenInfo.color_format) ? 4 : 3;
+
+		for (i = 0; i < 256; ++i) {
+			r = ((uint32_t)(gammatable[usegamma][*pal++])) << s_Fb.red.offset;
+			g = ((uint32_t)(gammatable[usegamma][*pal++])) << s_Fb.green.offset;
+			b = ((uint32_t)(gammatable[usegamma][*pal++])) << s_Fb.blue.offset;
+			pix = (r | g | b);
+
+#ifdef SYS_BIG_ENDIAN
+			pix = swapLE32(pix);
+#endif
+			memcpy(c, &pix, incr);
+			c += incr;
+		}
+	}
+	else
+	{
+		I_Error("Unknown color format value: %d\n", (int)s_DgScreenInfo.color_format);
+	}
 
 #ifdef CMAP256
 
-    palette_changed = true;
+	palette_changed = true;
 
 #endif  // CMAP256
-}
 
-// Given an RGB value, find the closest matching palette index.
-
-int I_GetPaletteIndex (int r, int g, int b)
-{
-    int best, best_diff, diff;
-    int i;
-    col_t color;
-
-    DG_Log("I_GetPaletteIndex\n");
-
-    best = 0;
-    best_diff = INT_MAX;
-
-    for (i = 0; i < 256; ++i)
-    {
-    	color.r = GFX_RGB565_R(rgb565_palette[i]);
-    	color.g = GFX_RGB565_G(rgb565_palette[i]);
-    	color.b = GFX_RGB565_B(rgb565_palette[i]);
-
-        diff = (r - color.r) * (r - color.r)
-             + (g - color.g) * (g - color.g)
-             + (b - color.b) * (b - color.b);
-
-        if (diff < best_diff)
-        {
-            best = i;
-            best_diff = diff;
-        }
-
-        if (diff == 0)
-        {
-            break;
-        }
-    }
-
-    return best;
+	DG_GraphicsUnlock();
 }
 
 void I_BeginRead (void)

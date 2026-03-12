@@ -24,16 +24,16 @@ extern "C" {
 #endif
 
 typedef enum dg_color_format {
-    DG_COLOR_FORMAT_INVALID,
-    DG_COLOR_FORMAT_RGB565,
-    DG_COLOR_FORMAT_RGB888,
-    DG_COLOR_FORMAT_RGBA8888,
+	DG_COLOR_FORMAT_INVALID,
+	DG_COLOR_FORMAT_RGB565,     // 16 bpp
+	DG_COLOR_FORMAT_RGB888,     // 24 bpp
+	DG_COLOR_FORMAT_RGBA8888,   // 32 bpp
 } dg_color_format_t;
 
 typedef struct dg_screen_info {
-    uint32_t xres;
-    uint32_t yres;
-    dg_color_format_t color_format;
+	uint32_t xres;
+	uint32_t yres;
+	dg_color_format_t color_format;
 } dg_screen_info_t;
 
 // DG_GraphicsLock() must be called before accessing this buffer and
