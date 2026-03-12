@@ -244,6 +244,19 @@ void I_InitGraphics(void)
 		s_Fb.red.offset = 0;
 		s_Fb.transp.offset = 16;
 	}
+	else if (DG_COLOR_FORMAT_GRAY8 == s_DgScreenInfo.color_format) {
+		s_Fb.bits_per_pixel = 8;
+
+		s_Fb.blue.length = 0;
+		s_Fb.green.length = 0;
+		s_Fb.red.length = 0;
+		s_Fb.transp.length = 0;
+
+		s_Fb.blue.offset = 0;
+		s_Fb.green.offset = 0;
+		s_Fb.red.offset = 0;
+		s_Fb.transp.offset = 0;
+	}
 	else
 		I_Error("Unknown color format value: %d\n", (int)s_DgScreenInfo.color_format);
 
@@ -413,9 +426,24 @@ void I_SetPalette(byte* palette)
 
 	DG_GraphicsLock();
 
+	if (DG_COLOR_FORMAT_GRAY8 == s_DgScreenInfo.color_format)
+	{
+		// Convert the palette to grayscale values for faster blitting later.
+		uint8_t r, g, b, gray;
+		byte* pal = palette;
 
+		for (i = 0; i < 256; i++)
+		{
+			r = gammatable[usegamma][*pal++];
+			g = gammatable[usegamma][*pal++];
+			b = gammatable[usegamma][*pal++];
 
-	if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format)
+			// Use the luminosity method to convert to grayscale.
+			gray = (uint8_t)(0.299 * r + 0.587 * g + 0.114 * b);
+			colors[i] = gray;
+		}
+	}
+	else if (DG_COLOR_FORMAT_RGB565 == s_DgScreenInfo.color_format)
 	{
 		// Convert the palette to RGB565 format for faster blitting later.
 		uint16_t r, g, b, pix;

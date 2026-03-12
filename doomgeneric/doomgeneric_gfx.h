@@ -25,6 +25,7 @@ extern "C" {
 
 typedef enum dg_color_format {
 	DG_COLOR_FORMAT_INVALID,
+	DG_COLOR_FORMAT_GRAY8,      // 8 bpp grayscale
 	DG_COLOR_FORMAT_RGB565,     // 16 bpp
 	DG_COLOR_FORMAT_RGB888,     // 24 bpp
 	DG_COLOR_FORMAT_RGBA8888,   // 32 bpp
