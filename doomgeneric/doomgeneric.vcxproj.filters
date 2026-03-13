@@ -78,9 +78,6 @@
     <ClCompile Include="i_joystick.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="i_scale.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="i_sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -360,9 +357,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="i_joystick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="i_scale.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="i_sound.h">

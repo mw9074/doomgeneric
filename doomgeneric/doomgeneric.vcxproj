@@ -178,7 +178,6 @@
     <ClCompile Include="i_endoom.c" />
     <ClCompile Include="i_input.c" />
     <ClCompile Include="i_joystick.c" />
-    <ClCompile Include="i_scale.c" />
     <ClCompile Include="i_sound.c" />
     <ClCompile Include="i_system.c" />
     <ClCompile Include="i_timer.c" />
@@ -273,7 +272,6 @@
     <ClInclude Include="i_cdmus.h" />
     <ClInclude Include="i_endoom.h" />
     <ClInclude Include="i_joystick.h" />
-    <ClInclude Include="i_scale.h" />
     <ClInclude Include="i_sound.h" />
     <ClInclude Include="i_swap.h" />
     <ClInclude Include="i_system.h" />
