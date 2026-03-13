@@ -117,12 +117,6 @@ static unsigned short createControlKeyEvent(dg_key_state_t state, dg_control_key
 	case DG_CONTROL_KEY_SCREEN_EXPAND:
 		doomKey = KEY_EQUALS;
 		break;
-	case DG_CONTROL_KEY_STRAFE_LEFT:
-		doomKey = KEY_STRAFE_L;
-		break;
-	case DG_CONTROL_KEY_STRAFE_RIGHT:
-		doomKey = KEY_STRAFE_R;
-		break;
 	case DG_CONTROL_KEY_USE:
 		doomKey = KEY_USE;
 		break;
@@ -140,6 +134,12 @@ static unsigned short createControlKeyEvent(dg_key_state_t state, dg_control_key
 		break;
 	case DG_CONTROL_KEY_DOWN:
 		doomKey = KEY_DOWNARROW;
+		break;
+	case DG_CONTROL_KEY_STRAFE_LEFT:
+		doomKey = KEY_STRAFE_L;
+		break;
+	case DG_CONTROL_KEY_STRAFE_RIGHT:
+		doomKey = KEY_STRAFE_R;
 		break;
 	case DG_CONTROL_KEY_RUN:
 		doomKey = KEY_RSHIFT;
