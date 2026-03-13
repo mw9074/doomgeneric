@@ -123,6 +123,12 @@ static unsigned short createControlKeyEvent(dg_key_state_t state, dg_control_key
 	case DG_CONTROL_KEY_FIRE:
 		doomKey = KEY_FIRE;
 		break;
+	case DG_CONTROL_KEY_PREVIOUS_WEAPON:
+		doomKey = KEY_PGUP;
+		break;
+	case DG_CONTROL_KEY_NEXT_WEAPON:
+		doomKey = KEY_PGDN;
+		break;
 	case DG_CONTROL_KEY_LEFT:
 		doomKey = KEY_LEFTARROW;
 		break;

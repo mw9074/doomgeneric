@@ -84,6 +84,12 @@ static void addKeyEventToQueue(dg_key_state_t keyState, unsigned char keyCode)
 		controlKey = DG_CONTROL_KEY_USE;
 		ch = ' ';
 		break;
+	case VK_PRIOR:
+		controlKey = DG_CONTROL_KEY_PREVIOUS_WEAPON;
+		break;
+	case VK_NEXT:
+		controlKey = DG_CONTROL_KEY_NEXT_WEAPON;
+		break;
 	case VK_SHIFT:
 		controlKey = DG_CONTROL_KEY_RUN;
 		break;
