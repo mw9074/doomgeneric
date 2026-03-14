@@ -35,7 +35,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
-
+#include "st_stuff.h"
 
 
 
@@ -619,7 +619,7 @@ void R_ExecuteSetViewSize (void)
 
     setsizeneeded = false;
 
-    if (setblocks == 11)
+    if (setblocks == MAX_SCREENBLOCKS)
     {
 	scaledviewwidth = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;

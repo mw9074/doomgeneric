@@ -27,6 +27,9 @@
 #define SCREENWIDTH  320
 #define SCREENHEIGHT 200
 
+#define MAX_SCREENBLOCKS 11
+#define SCREENBLOCKS_TO_SCREENSIZE(blocks) ((blocks) - 3)
+
 #define MAX_MOUSE_BUTTONS 8
 
 typedef struct
