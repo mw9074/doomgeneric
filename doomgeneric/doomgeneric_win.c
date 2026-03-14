@@ -132,8 +132,10 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		DestroyWindow(hwnd);
 		break;
 	case WM_DESTROY:
+		// Trigger the DOOM thread to exit so that it will likely
+		// be exiting while the main window is being destroyed.
+		s_ExitDoomThread = true;
 		PostQuitMessage(0);
-		ExitProcess(0);
 		break;
 	case WM_SIZE:
 		if (s_DoomCreated)
