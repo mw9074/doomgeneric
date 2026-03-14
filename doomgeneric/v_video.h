@@ -34,8 +34,6 @@
 #define CENTERY			(SCREENHEIGHT/2)
 
 
-extern int dirtybox[4];
-
 extern byte *tinttable;
 
 // haleyjd 08/28/10: implemented for Strife support
@@ -65,8 +63,6 @@ void V_DrawPatchDirect(int x, int y, patch_t *patch);
 // Draw a linear block of pixels into the view buffer.
 
 void V_DrawBlock(int x, int y, int width, int height, byte *src);
-
-void V_MarkRect(int x, int y, int width, int height);
 
 void V_DrawFilledBox(int x, int y, int w, int h, int c);
 void V_DrawHorizLine(int x, int y, int w, int c);
