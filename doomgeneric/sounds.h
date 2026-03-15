@@ -22,6 +22,10 @@
 
 #include "i_sound.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // the complete set of sound effects
 extern sfxinfo_t	S_sfx[];
 
@@ -224,4 +228,9 @@ typedef enum
     NUMSFX
 } sfxenum_t;
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __SOUNDS__

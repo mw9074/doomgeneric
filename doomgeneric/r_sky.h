@@ -20,7 +20,9 @@
 #ifndef __R_SKY__
 #define __R_SKY__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // SKY, store the number for name.
 #define			SKYFLATNAME  "F_SKY1"
@@ -34,4 +36,9 @@ extern int		skytexturemid;
 // Called whenever the view size changes.
 void R_InitSkyMap (void);
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_SKY__

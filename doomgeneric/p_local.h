@@ -24,6 +24,10 @@
 #include "r_local.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FLOATSPEED		(FRACUNIT*4)
 
 
@@ -287,6 +291,10 @@ P_DamageMobj
   mobj_t*	source,
   int		damage );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 //
 // P_SPEC

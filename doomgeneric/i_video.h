@@ -86,6 +86,10 @@ typedef struct
 
 typedef boolean (*grabmouse_callback_t)(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Called by D_DoomMain,
 // determines the hardware configuration
 // and sets up the video mode
@@ -159,4 +163,8 @@ extern struct color colors[256];
 
 #endif  // CMAP256
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif  // __I_VIDEO__

@@ -20,6 +20,10 @@
 #ifndef __I_SWAP__
 #define __I_SWAP__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef __DJGPP__
 
 
@@ -68,6 +72,9 @@ static inline unsigned long swapLE32(unsigned long val) {
 
 #endif  // __DJGPP__
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

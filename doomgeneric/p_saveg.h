@@ -23,6 +23,10 @@
 #include "dg_file_interface.h"
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // maximum size of a savegame description
 
 #define SAVESTRINGSIZE 24
@@ -55,5 +59,8 @@ void P_UnArchiveSpecials (void);
 extern dg_file_handle_t save_stream;
 extern boolean savegame_error;
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __P_SAVEG__

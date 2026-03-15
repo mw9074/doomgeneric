@@ -48,6 +48,10 @@ typedef struct
     void (*RunMenu)();
 } loop_interface_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Register callback functions for the main loop code to use.
 void D_RegisterLoopCallbacks(loop_interface_t *i);
 
@@ -77,5 +81,9 @@ void D_StartNetGame(net_gamesettings_t *settings,
 extern boolean singletics;
 extern int gametic, ticdup;
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_LOOP__
 

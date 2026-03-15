@@ -40,6 +40,11 @@ extern byte *tinttable;
 // haleyjd 08/28/10: Patch clipping callback, implemented to support Choco
 // Strife.
 typedef boolean (*vpatchclipfunc_t)(patch_t *, int, int);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void V_SetPatchClipCallback(vpatchclipfunc_t func);
 
 
@@ -98,5 +103,9 @@ void V_LoadTintTable(void);
 
 void V_LoadXlaTable(void);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __V_VIDEO__
 

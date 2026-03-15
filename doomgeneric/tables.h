@@ -37,7 +37,11 @@
 #include "doomtype.h"
 
 #include "m_fixed.h"
-	
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FINEANGLES		8192
 #define FINEMASK		(FINEANGLES-1)
 
@@ -92,5 +96,9 @@ extern const angle_t tantoangle[SLOPERANGE+1];
 int SlopeDiv(unsigned int num, unsigned int den);
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __TABLES__
 

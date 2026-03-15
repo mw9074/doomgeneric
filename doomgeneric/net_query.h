@@ -20,6 +20,10 @@
 
 #include "net_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*net_query_callback_t)(net_addr_t *addr,
                                      net_querydata_t *querydata,
                                      unsigned int ping_time,
@@ -39,6 +43,10 @@ extern net_addr_t *NET_Query_ResolveMaster(net_context_t *context);
 extern void NET_Query_AddToMaster(net_addr_t *master_addr);
 extern boolean NET_Query_CheckAddedToMaster(boolean *result);
 extern void NET_Query_MasterResponse(net_packet_t *packet);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_QUERY_H */
 

@@ -25,7 +25,9 @@
 #include "r_data.h"
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -124,4 +126,8 @@ extern visplane_t*	floorplane;
 extern visplane_t*	ceilingplane;
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_STATE__

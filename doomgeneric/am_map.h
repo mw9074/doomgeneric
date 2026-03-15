@@ -27,6 +27,9 @@
 #define AM_MSGENTERED (AM_MSGHEADER | ('e'<<8))
 #define AM_MSGEXITED (AM_MSGHEADER | ('x'<<8))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Called by main loop.
 boolean AM_Responder (event_t* ev);
@@ -45,5 +48,8 @@ void AM_Stop (void);
 
 extern cheatseq_t cheat_amap;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

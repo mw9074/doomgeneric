@@ -26,6 +26,10 @@
 
 typedef void (*atexit_func_t)(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Called by DoomMain.
 void I_Init (void);
 
@@ -52,7 +56,7 @@ ticcmd_t* I_BaseTiccmd (void);
 // Clean exit, displays sell blurb.
 void I_Quit (void);
 
-void I_Error (char *error, ...);
+void I_Error (const char *error, ...);
 
 void I_Tactile (int on, int off, int total);
 
@@ -80,5 +84,9 @@ void I_PrintBanner(char *text);
 
 void I_PrintDivider(void);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __I_SYSTEM__
 

@@ -39,6 +39,10 @@
 
 #define HU_MSGTIMEOUT	(4*TICRATE)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // HEADS UP TEXT
 //
@@ -55,5 +59,9 @@ void HU_Erase(void);
 
 extern char *chat_macros[10];
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __HU_STUFF_H__
 

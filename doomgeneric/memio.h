@@ -25,6 +25,10 @@ typedef enum
 	MEM_SEEK_END,
 } mem_rel_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 MEMFILE *mem_fopen_read(void *buf, size_t buflen);
 size_t mem_fread(void *buf, size_t size, size_t nmemb, MEMFILE *stream);
 MEMFILE *mem_fopen_write(void);
@@ -33,6 +37,10 @@ void mem_get_buf(MEMFILE *stream, void **buf, size_t *buflen);
 void mem_fclose(MEMFILE *stream);
 long mem_ftell(MEMFILE *stream);
 int mem_fseek(MEMFILE *stream, signed long offset, mem_rel_t whence);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef MEMIO_H */
 	  

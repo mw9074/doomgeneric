@@ -34,6 +34,10 @@ enum
     BOXRIGHT
 };	// bbox coordinates
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Bounding box functions.
 void M_ClearBox (fixed_t*	box);
 
@@ -44,4 +48,9 @@ M_AddToBox
   fixed_t	y );
 
 
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif // __M_BBOX__

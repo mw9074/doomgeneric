@@ -20,7 +20,9 @@
 #ifndef __P_SETUP__
 #define __P_SETUP__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 // NOT called by W_Ticker. Fixme.
@@ -34,4 +36,9 @@ P_SetupLevel
 // Called by startup code.
 void P_Init (void);
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __P_SETUP__

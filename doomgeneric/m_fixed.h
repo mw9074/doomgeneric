@@ -31,9 +31,15 @@
 
 typedef int fixed_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 fixed_t FixedMul	(fixed_t a, fixed_t b);
 fixed_t FixedDiv	(fixed_t a, fixed_t b);
 
-
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __M_FIXED__

@@ -23,6 +23,12 @@
 
 #include "doomtype.h"
 #include "d_event.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // FINALE
 //
@@ -40,6 +46,8 @@ void F_Drawer (void);
 void F_StartFinale (void);
 
 
-
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __F_FINALE__

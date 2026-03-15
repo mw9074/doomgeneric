@@ -20,7 +20,9 @@
 #ifndef __P_TICK__
 #define __P_TICK__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 // Called by C_Ticker,
@@ -29,5 +31,8 @@
 void P_Ticker (void);
 
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif //__P_TICK__

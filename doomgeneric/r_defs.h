@@ -39,7 +39,9 @@
 #include "v_patch.h"
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Silhouette, needed for clipping Segs (mainly)
 // and sprites representing things.
@@ -443,6 +445,8 @@ typedef struct
 } visplane_t;
 
 
-
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_DEFS__

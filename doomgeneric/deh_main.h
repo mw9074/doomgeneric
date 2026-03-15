@@ -30,6 +30,10 @@
 #define DEH_VANILLA_NUMSTATES 966
 #define DEH_VANILLA_NUMSFX 107
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void DEH_ParseCommandLine(void);
 int DEH_LoadFile(char *filename);
 int DEH_LoadLump(int lumpnum, boolean allow_long, boolean allow_error);
@@ -43,6 +47,10 @@ extern boolean deh_allow_extended_strings;
 extern boolean deh_allow_long_strings;
 extern boolean deh_allow_long_cheats;
 extern boolean deh_apply_cheats;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef DEH_MAIN_H */
 

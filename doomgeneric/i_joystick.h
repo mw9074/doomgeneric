@@ -60,11 +60,20 @@
 #define HAT_AXIS_HORIZONTAL 1
 #define HAT_AXIS_VERTICAL   2
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void I_InitJoystick(void);
 void I_ShutdownJoystick(void);
 void I_UpdateJoystick(void);
 
 void I_BindJoystickVariables(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef __I_JOYSTICK__ */
 

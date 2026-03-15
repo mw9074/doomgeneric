@@ -49,6 +49,9 @@ enum
     PU_NUM_TAGS
 };
         
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void	Z_Init (void);
 void*	Z_Malloc (int size, int tag, void *ptr);
@@ -62,6 +65,10 @@ void    Z_ChangeUser(void *ptr, void **user);
 int     Z_FreeMemory (void);
 unsigned int Z_ZoneSize(void);
 
+#ifdef __cplusplus
+}
+#endif
+
 //
 // This is used to get the local FILE:LINE info from CPP
 // prior to really call the function in question.
@@ -69,5 +76,4 @@ unsigned int Z_ZoneSize(void);
 #define Z_ChangeTag(p,t)                                       \
     Z_ChangeTag2((p), (t), __FILE__, __LINE__)
 
-
-#endif
+#endif // __Z_ZONE__

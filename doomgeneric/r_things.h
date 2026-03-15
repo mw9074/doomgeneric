@@ -20,7 +20,9 @@
 #ifndef __R_THINGS__
 #define __R_THINGS__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MAXVISSPRITES  	128
 
@@ -62,4 +64,8 @@ R_ClipVisSprite
   int			xh );
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_THINGS__

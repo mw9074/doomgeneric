@@ -22,6 +22,10 @@
 #include "sha1.h"
 #include "net_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 boolean NET_CL_Connect(net_addr_t *addr, net_connect_data_t *data);
 void NET_CL_Disconnect(void);
 void NET_CL_Run(void);
@@ -48,5 +52,9 @@ extern sha1_digest_t net_local_deh_sha1sum;
 extern unsigned int net_local_is_freedoom;
 
 extern boolean drone;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_CLIENT_H */

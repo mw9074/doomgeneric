@@ -26,6 +26,11 @@
 #define CDERR_IOCTLBUFFMEM   22 // Not enough low memory for IOCTL
 #define CDERR_DEVREQBASE     100        // DevReq errors
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int cd_Error;
 
 int I_CDMusInit(void);
@@ -38,4 +43,9 @@ int I_CDMusFirstTrack(void);
 int I_CDMusLastTrack(void);
 int I_CDMusTrackLength(int track);
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __ICDMUS__

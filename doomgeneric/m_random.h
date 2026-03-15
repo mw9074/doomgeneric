@@ -23,7 +23,9 @@
 
 #include "doomtype.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Returns a number from 0 to 255,
 // from a lookup table.
@@ -35,5 +37,8 @@ int P_Random (void);
 // Fix randoms for demos.
 void M_ClearRandom (void);
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __M_RANDOM__

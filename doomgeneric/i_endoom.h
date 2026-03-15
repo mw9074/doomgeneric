@@ -20,10 +20,18 @@
 #ifndef __I_ENDOOM__
 #define __I_ENDOOM__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Display the Endoom screen on shutdown.  Pass a pointer to the
 // ENDOOM lump.
 
 void I_Endoom(byte *data);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __I_ENDOOM__
 

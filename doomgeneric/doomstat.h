@@ -39,6 +39,9 @@
 #include "net_defs.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // ------------------------
 // Command line parameters.
@@ -274,4 +277,8 @@ extern	int		rndindex;
 extern  ticcmd_t       *netcmds;
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_STATE__

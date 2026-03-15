@@ -123,7 +123,9 @@ typedef enum
 } buttoncode2_t;
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Called by IO functions when input is detected.
 void D_PostEvent (event_t *ev);
@@ -132,6 +134,9 @@ void D_PostEvent (event_t *ev);
 
 event_t *D_PopEvent(void);
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_EVENT__
 

@@ -83,6 +83,10 @@ typedef struct
 } hu_itext_t;
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // Widget creation, access, and update routines
 //
@@ -179,4 +183,9 @@ void HUlib_drawIText(hu_itext_t* it);
 // erases all itext lines
 void HUlib_eraseIText(hu_itext_t* it); 
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __HULIB__

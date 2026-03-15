@@ -24,7 +24,9 @@
 #include "r_data.h"
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // POV related.
@@ -157,4 +159,9 @@ void R_Init (void);
 // Called by M_Responder.
 void R_SetViewSize (int blocks, int detail);
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_MAIN__

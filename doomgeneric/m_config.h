@@ -22,6 +22,10 @@
 
 #include "doomtype.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void M_LoadDefaults(void);
 void M_SaveDefaults(void);
 void M_SaveDefaultsAlternate(char *main, char *extra);
@@ -36,4 +40,8 @@ char *M_GetSaveGameDir(char *iwadname);
 
 extern char *configdir;
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __M_CONFIG__

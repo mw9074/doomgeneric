@@ -20,7 +20,9 @@
 #ifndef __R_DRAW__
 #define __R_DRAW__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 extern lighttable_t*	dc_colormap;
@@ -100,5 +102,8 @@ void R_FillBackScreen (void);
 void R_DrawViewBorder (void);
 
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_DRAW__

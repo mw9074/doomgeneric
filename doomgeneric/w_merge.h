@@ -24,6 +24,11 @@
 #define W_NWT_MERGE_SPRITES   0x1
 #define W_NWT_MERGE_FLATS     0x2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // Add a new WAD and merge it into the main directory
 
 void W_MergeFile(char *filename);
@@ -39,6 +44,11 @@ void W_NWTDashMerge(char *filename);
 // Debug function that prints the WAD directory.
 
 void W_PrintDirectory(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef W_MERGE_H */
 

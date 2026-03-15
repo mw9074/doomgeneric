@@ -24,6 +24,10 @@
 // Needed for action function pointer handling.
 #include "d_think.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum
 {
     SPR_TROO,
@@ -1328,4 +1332,8 @@ typedef struct
 
 extern mobjinfo_t mobjinfo[NUMMOBJTYPES];
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __DOOMDATA_H__

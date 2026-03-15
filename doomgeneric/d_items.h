@@ -36,6 +36,14 @@ typedef struct
 
 } weaponinfo_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern  weaponinfo_t    weaponinfo[NUMWEAPONS];
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_ITEMS__

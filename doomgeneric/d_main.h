@@ -22,8 +22,9 @@
 
 #include "doomdef.h"
 
-
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Read events from all input devices
 
@@ -45,6 +46,9 @@ void D_StartTitle (void);
 
 extern  gameaction_t    gameaction;
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_MAIN__
 

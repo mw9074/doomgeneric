@@ -17,6 +17,10 @@
 #ifndef NET_SERVER_H
 #define NET_SERVER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // initialize server and wait for connections
 
 void NET_SV_Init(void);
@@ -37,6 +41,10 @@ void NET_SV_AddModule(net_module_t *module);
 // Register server with master server.
 
 void NET_SV_RegisterWithMaster(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_SERVER_H */
 

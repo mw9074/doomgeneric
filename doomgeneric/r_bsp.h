@@ -20,7 +20,9 @@
 #ifndef __R_BSP__
 #define __R_BSP__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern seg_t*		curline;
 extern side_t*		sidedef;
@@ -58,4 +60,8 @@ void R_ClearDrawSegs (void);
 void R_RenderBSPNode (int bspnum);
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_BSP__

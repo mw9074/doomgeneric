@@ -24,6 +24,10 @@
 
 #include "d_event.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // MENUS
 //
@@ -56,6 +60,8 @@ void M_StartControlPanel (void);
 extern int detailLevel;
 extern int screenblocks;
 
+#ifdef __cplusplus
+}
+#endif
 
-
-#endif    
+#endif // __M_MENU__

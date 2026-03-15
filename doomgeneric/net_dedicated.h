@@ -18,7 +18,15 @@
 #ifndef NET_DEDICATED_H
 #define NET_DEDICATED_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void NET_DedicatedServer(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_DEDICATED_H */
 

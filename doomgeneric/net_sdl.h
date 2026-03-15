@@ -20,7 +20,15 @@
 
 #include "net_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern net_module_t net_sdl_module;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_SDL_H */
 

@@ -19,9 +19,12 @@
 #ifndef __WI_STUFF__
 #define __WI_STUFF__
 
-//#include "v_video.h"
-
 #include "doomdef.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 // States for the intermission
 
@@ -45,4 +48,9 @@ void WI_Start(wbstartstruct_t*	 wbstartstruct);
 // Shut down the intermission screen
 void WI_End(void);
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __WI_STUFF__

@@ -39,6 +39,10 @@ typedef struct
     char *description;
 } iwad_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 char *D_FindWADByName(char *filename);
 char *D_TryFindWADByName(char *filename);
 char *D_FindIWAD(int mask, GameMission_t *mission);
@@ -48,5 +52,9 @@ char *D_SuggestIWADName(GameMission_t mission, GameMode_t mode);
 char *D_SuggestGameName(GameMission_t mission, GameMode_t mode);
 void D_CheckCorrectIWAD(GameMission_t mission);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __D_IWAD__
 

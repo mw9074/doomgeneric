@@ -35,6 +35,11 @@ enum
     wipe_NUMWIPES
 };
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int
 wipe_StartScreen
 ( int		x,
@@ -60,4 +65,8 @@ wipe_ScreenWipe
   int		height,
   int		ticks );
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __F_WIPE_H__

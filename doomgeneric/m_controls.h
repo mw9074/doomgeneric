@@ -17,6 +17,10 @@
 #ifndef __M_CONTROLS_H__
 #define __M_CONTROLS_H__
  
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int key_right;
 extern int key_left;
 
@@ -163,6 +167,10 @@ void M_BindMenuControls(void);
 void M_BindChatControls(unsigned int num_players);
 
 void M_ApplyPlatformDefaults(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef __M_CONTROLS_H__ */
 

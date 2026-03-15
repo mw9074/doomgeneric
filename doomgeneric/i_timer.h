@@ -22,6 +22,10 @@
 
 #define TICRATE 35
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Called by D_DoomLoop,
 // returns current time in tics.
 int I_GetTime (void);
@@ -38,5 +42,9 @@ void I_InitTimer(void);
 // Wait for vertical retrace or pause a bit.
 void I_WaitVBL(int count);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __I_TIMER__
 

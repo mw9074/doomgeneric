@@ -23,7 +23,15 @@
 
 #include "doomtype.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void NET_WaitForLaunch(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_GUI_H */
 

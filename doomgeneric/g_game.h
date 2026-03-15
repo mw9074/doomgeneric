@@ -25,6 +25,10 @@
 #include "d_ticcmd.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // GAME
 //
@@ -76,5 +80,10 @@ int G_VanillaVersionCode(void);
 
 extern int vanilla_savegame_limit;
 extern int vanilla_demo_limit;
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __G_GAME__
 

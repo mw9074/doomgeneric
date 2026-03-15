@@ -24,6 +24,10 @@
 #include "d_ticcmd.h"
 #include "sha1.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Absolute maximum number of "nodes" in the game.  This is different to
 // NET_MAXPLAYERS, as there may be observers that are not participating
 // (eg. left/right monitors)
@@ -244,5 +248,9 @@ typedef struct
     sha1_digest_t deh_sha1sum;
     int is_freedoom;
 } net_waitdata_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_DEFS_H */

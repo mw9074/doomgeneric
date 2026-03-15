@@ -24,6 +24,9 @@
 #include "r_defs.h"
 #include "r_state.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Retrieve column data for span blitting.
 byte*
@@ -48,4 +51,8 @@ int R_FlatNumForName (char* name);
 int R_TextureNumForName (char *name);
 int R_CheckTextureNumForName (char *name);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_DATA__

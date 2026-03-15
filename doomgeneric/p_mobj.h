@@ -37,7 +37,9 @@
 #include "info.h"
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -280,5 +282,8 @@ typedef struct mobj_s
 } mobj_t;
 
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __P_MOBJ__

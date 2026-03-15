@@ -20,6 +20,10 @@
 
 #include "net_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 net_packet_t *NET_NewPacket(int initial_size);
 net_packet_t *NET_PacketDup(net_packet_t *packet);
 void NET_FreePacket(net_packet_t *packet);
@@ -39,6 +43,10 @@ void NET_WriteInt16(net_packet_t *packet, unsigned int i);
 void NET_WriteInt32(net_packet_t *packet, unsigned int i);
 
 void NET_WriteString(net_packet_t *packet, char *string);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_PACKET_H */
 

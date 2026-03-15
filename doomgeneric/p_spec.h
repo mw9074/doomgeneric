@@ -23,6 +23,9 @@
 #ifndef __P_SPEC__
 #define __P_SPEC__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // End-level timer (-TIMER option)
@@ -549,4 +552,9 @@ EV_Teleport
   int		side,
   mobj_t*	thing );
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __P_SPEC__

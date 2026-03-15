@@ -21,7 +21,17 @@
 
 #include "doomtype.h"
 
-extern void W_Checksum(sha1_digest_t digest);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+void W_Checksum(sha1_digest_t digest);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef W_CHECKSUM_H */
 

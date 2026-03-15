@@ -20,7 +20,9 @@
 #ifndef __R_SEGS__
 #define __R_SEGS__
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 void
@@ -30,4 +32,8 @@ R_RenderMaskedSegRange
   int		x2 );
 
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_SEGS__

@@ -23,6 +23,10 @@
 #include "doomgeneric.h"
 #include "doomfeatures.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Used to do dehacked text substitutions throughout the program
 
 #ifdef FEATURE_DEHACKED
@@ -42,6 +46,10 @@ void DEH_AddStringReplacement(char *from_text, char *to_text);
 #define DEH_snprintf snprintf
 #define DEH_AddStringReplacement(x, y)
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* #ifndef DEH_STR_H */

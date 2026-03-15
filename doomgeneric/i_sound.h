@@ -22,6 +22,9 @@
 
 #include "doomtype.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // SoundFX struct.
@@ -252,5 +255,9 @@ extern int opl_io_port;
 
 extern char *timidity_cfg_path;
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __I_SOUND__
 

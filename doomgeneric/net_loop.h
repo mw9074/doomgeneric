@@ -20,8 +20,16 @@
 
 #include "net_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern net_module_t net_loop_client_module;
 extern net_module_t net_loop_server_module;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef NET_LOOP_H */
 

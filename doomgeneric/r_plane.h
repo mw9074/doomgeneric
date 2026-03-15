@@ -23,7 +23,9 @@
 
 #include "r_data.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Visplane related.
 extern  short*		lastopening;
@@ -72,5 +74,8 @@ R_CheckPlane
   int		stop );
 
 
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __R_PLANE__

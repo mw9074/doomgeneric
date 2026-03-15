@@ -17,7 +17,15 @@
 #ifndef DOOM_STATDUMP_H
 #define DOOM_STATDUMP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void StatCopy(wbstartstruct_t *stats);
 void StatDump(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* #ifndef DOOM_STATDUMP_H */

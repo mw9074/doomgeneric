@@ -23,6 +23,10 @@
 // We are referring to patches.
 #include "r_defs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //
 // Typedefs of widgets
 //
@@ -206,4 +210,9 @@ STlib_updateBinIcon
 ( st_binicon_t*		bi,
   boolean		refresh );
 
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __STLIB__

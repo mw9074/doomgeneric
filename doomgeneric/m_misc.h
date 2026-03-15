@@ -25,6 +25,10 @@
 #include "dg_file_interface.h"
 #include "doomtype.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 boolean M_WriteFile(char *name, void *source, int length);
 int M_ReadFile(char *name, byte **buffer);
 boolean M_FileExists(char *file);
@@ -45,5 +49,9 @@ int M_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args);
 int M_snprintf(char *buf, size_t buf_len, const char *s, ...);
 char *M_OEMToUTF8(const char *ansi);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // __M_MISC__
 
