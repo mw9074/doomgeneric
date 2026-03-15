@@ -45,8 +45,6 @@ typedef boolean (*vpatchclipfunc_t)(patch_t *, int, int);
 extern "C" {
 #endif
 
-void V_SetPatchClipCallback(vpatchclipfunc_t func);
-
 
 // Allocates buffer screens, call before R_Init.
 void V_Init (void);
@@ -60,7 +58,6 @@ void V_CopyRect(int srcx, int srcy, byte *source,
 void V_DrawPatch(int x, int y, patch_t *patch);
 void V_DrawPatchFlipped(int x, int y, patch_t *patch);
 void V_DrawTLPatch(int x, int y, patch_t *patch);
-void V_DrawAltTLPatch(int x, int y, patch_t * patch);
 void V_DrawShadowedPatch(int x, int y, patch_t *patch);
 void V_DrawXlaPatch(int x, int y, patch_t * patch);     // villsa [STRIFE]
 void V_DrawPatchDirect(int x, int y, patch_t *patch);

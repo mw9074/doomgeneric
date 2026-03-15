@@ -229,7 +229,7 @@
     <ClCompile Include="st_stuff.c" />
     <ClCompile Include="s_sound.c" />
     <ClCompile Include="tables.c" />
-    <ClCompile Include="v_video.c" />
+    <ClCompile Include="v_video.cpp" />
     <ClCompile Include="wi_stuff.c" />
     <ClCompile Include="w_checksum.c" />
     <ClCompile Include="w_file.c" />

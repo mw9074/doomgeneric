@@ -46,6 +46,15 @@
 // is common code. Fix this.
 #define RANGECHECK
 
+enum class DrawMode
+{
+    Normal,
+    Flipped,
+    Shadowed,
+    TL,
+    XLA,
+};
+
 // Blending table used for fuzzpatch, etc.
 // Only used in Heretic/Hexen
 
@@ -58,26 +67,26 @@ byte *xlatab = NULL;
 
 static byte *dest_screen = NULL;
 
-// haleyjd 08/28/10: clipping callback function for patches.
-// This is needed for Chocolate Strife, which clips patches to the screen.
-static vpatchclipfunc_t patchclip_callback = NULL;
- 
+
+template <DrawMode drawMode>
+void V_DrawPatchT(int x, int y, patch_t* patch);
+
 
 //
-// V_CopyRect 
-// 
+// V_CopyRect
+//
 void V_CopyRect(int srcx, int srcy, byte *source,
                 int width, int height,
                 int destx, int desty)
-{ 
+{
     byte *src;
-    byte *dest; 
- 
-#ifdef RANGECHECK 
+    byte *dest;
+
+#ifdef RANGECHECK
     if (srcx < 0
      || srcx + width > SCREENWIDTH
      || srcy < 0
-     || srcy + height > SCREENHEIGHT 
+     || srcy + height > SCREENHEIGHT
      || destx < 0
      || destx + width > SCREENWIDTH
      || desty < 0
@@ -85,93 +94,28 @@ void V_CopyRect(int srcx, int srcy, byte *source,
     {
         I_Error ("Bad V_CopyRect");
     }
-#endif 
- 
-    src = source + SCREENWIDTH * srcy + srcx; 
-    dest = dest_screen + SCREENWIDTH * desty + destx; 
+#endif
 
-    for ( ; height>0 ; height--) 
-    { 
-        memcpy(dest, src, width); 
-        src += SCREENWIDTH; 
-        dest += SCREENWIDTH; 
-    } 
-} 
- 
-//
-// V_SetPatchClipCallback
-//
-// haleyjd 08/28/10: Added for Strife support.
-// By calling this function, you can setup runtime error checking for patch 
-// clipping. Strife never caused errors by drawing patches partway off-screen.
-// Some versions of vanilla DOOM also behaved differently than the default
-// implementation, so this could possibly be extended to those as well for
-// accurate emulation.
-//
-void V_SetPatchClipCallback(vpatchclipfunc_t func)
-{
-    patchclip_callback = func;
+    src = source + SCREENWIDTH * srcy + srcx;
+    dest = dest_screen + SCREENWIDTH * desty + destx;
+
+    for ( ; height>0 ; height--)
+    {
+        memcpy(dest, src, width);
+        src += SCREENWIDTH;
+        dest += SCREENWIDTH;
+    }
 }
+
 
 //
 // V_DrawPatch
-// Masks a column based masked pic to the screen. 
+// Masks a column based masked pic to the screen.
 //
 
 void V_DrawPatch(int x, int y, patch_t *patch)
-{ 
-    int count;
-    int col;
-    column_t *column;
-    byte *desttop;
-    byte *dest;
-    byte *source;
-    int w;
-
-    y -= SHORT(patch->topoffset);
-    x -= SHORT(patch->leftoffset);
-
-    // haleyjd 08/28/10: Strife needs silent error checking here.
-    if(patchclip_callback)
-    {
-        if(!patchclip_callback(patch, x, y))
-            return;
-    }
-
-#ifdef RANGECHECK
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
-    {
-        I_Error("Bad V_DrawPatch x=%i y=%i patch.width=%i patch.height=%i topoffset=%i leftoffset=%i", x, y, patch->width, patch->height, patch->topoffset, patch->leftoffset);
-    }
-#endif
-
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
-    w = SHORT(patch->width);
-
-    for ( ; col<w ; x++, col++, desttop++)
-    {
-        column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
-
-        // step through the posts in a column
-        while (column->topdelta != 0xff)
-        {
-            source = (byte *)column + 3;
-            dest = desttop + column->topdelta*SCREENWIDTH;
-            count = column->length;
-
-            while (count--)
-            {
-                *dest = *source++;
-                dest += SCREENWIDTH;
-            }
-            column = (column_t *)((byte *)column + column->length + 4);
-        }
-    }
+{
+	V_DrawPatchT<DrawMode::Normal>(x, y, patch);
 }
 
 //
@@ -182,71 +126,19 @@ void V_DrawPatch(int x, int y, patch_t *patch)
 
 void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 {
-    int count;
-    int col; 
-    column_t *column; 
-    byte *desttop;
-    byte *dest;
-    byte *source; 
-    int w; 
- 
-    y -= SHORT(patch->topoffset); 
-    x -= SHORT(patch->leftoffset); 
-
-    // haleyjd 08/28/10: Strife needs silent error checking here.
-    if(patchclip_callback)
-    {
-        if(!patchclip_callback(patch, x, y))
-            return;
-    }
-
-#ifdef RANGECHECK 
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
-    {
-        I_Error("Bad V_DrawPatchFlipped");
-    }
-#endif
-
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
-    w = SHORT(patch->width);
-
-    for ( ; col<w ; x++, col++, desttop++)
-    {
-        column = (column_t *)((byte *)patch + LONG(patch->columnofs[w-1-col]));
-
-        // step through the posts in a column
-        while (column->topdelta != 0xff )
-        {
-            source = (byte *)column + 3;
-            dest = desttop + column->topdelta*SCREENWIDTH;
-            count = column->length;
-
-            while (count--)
-            {
-                *dest = *source++;
-                dest += SCREENWIDTH;
-            }
-            column = (column_t *)((byte *)column + column->length + 4);
-        }
-    }
+	V_DrawPatchT<DrawMode::Flipped>(x, y, patch);
 }
-
 
 
 //
 // V_DrawPatchDirect
-// Draws directly to the screen on the pc. 
+// Draws directly to the screen on the pc.
 //
 
-void V_DrawPatchDirect(int x, int y, patch_t *patch)
+void V_DrawPatchDirect(int x, int y, patch_t* patch)
 {
-    V_DrawPatch(x, y, patch); 
-} 
+    V_DrawPatch(x, y, patch);
+}
 
 //
 // V_DrawTLPatch
@@ -254,48 +146,9 @@ void V_DrawPatchDirect(int x, int y, patch_t *patch)
 // Masks a column based translucent masked pic to the screen.
 //
 
-void V_DrawTLPatch(int x, int y, patch_t * patch)
+void V_DrawTLPatch(int x, int y, patch_t* patch)
 {
-    int count, col;
-    column_t *column;
-    byte *desttop, *dest, *source;
-    int w;
-
-    y -= SHORT(patch->topoffset);
-    x -= SHORT(patch->leftoffset);
-
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH 
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
-    {
-        I_Error("Bad V_DrawTLPatch");
-    }
-
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
-    w = SHORT(patch->width);
-    for (; col < w; x++, col++, desttop++)
-    {
-        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
-
-        // step through the posts in a column
-
-        while (column->topdelta != 0xff)
-        {
-            source = (byte *) column + 3;
-            dest = desttop + column->topdelta * SCREENWIDTH;
-            count = column->length;
-
-            while (count--)
-            {
-                *dest = tinttable[((*dest) << 8) + *source++];
-                dest += SCREENWIDTH;
-            }
-            column = (column_t *) ((byte *) column + column->length + 4);
-        }
-    }
+    V_DrawPatchT<DrawMode::TL>(x, y, patch);
 }
 
 //
@@ -304,97 +157,9 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
 // villsa [STRIFE] Masks a column based translucent masked pic to the screen.
 //
 
-void V_DrawXlaPatch(int x, int y, patch_t * patch)
+void V_DrawXlaPatch(int x, int y, patch_t* patch)
 {
-    int count, col;
-    column_t *column;
-    byte *desttop, *dest, *source;
-    int w;
-
-    y -= SHORT(patch->topoffset);
-    x -= SHORT(patch->leftoffset);
-
-    if(patchclip_callback)
-    {
-        if(!patchclip_callback(patch, x, y))
-            return;
-    }
-
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
-    w = SHORT(patch->width);
-    for(; col < w; x++, col++, desttop++)
-    {
-        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
-
-        // step through the posts in a column
-
-        while(column->topdelta != 0xff)
-        {
-            source = (byte *) column + 3;
-            dest = desttop + column->topdelta * SCREENWIDTH;
-            count = column->length;
-
-            while(count--)
-            {
-                *dest = xlatab[*dest + ((*source) << 8)];
-                source++;
-                dest += SCREENWIDTH;
-            }
-            column = (column_t *) ((byte *) column + column->length + 4);
-        }
-    }
-}
-
-//
-// V_DrawAltTLPatch
-//
-// Masks a column based translucent masked pic to the screen.
-//
-
-void V_DrawAltTLPatch(int x, int y, patch_t * patch)
-{
-    int count, col;
-    column_t *column;
-    byte *desttop, *dest, *source;
-    int w;
-
-    y -= SHORT(patch->topoffset);
-    x -= SHORT(patch->leftoffset);
-
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
-    {
-        I_Error("Bad V_DrawAltTLPatch");
-    }
-
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-
-    w = SHORT(patch->width);
-    for (; col < w; x++, col++, desttop++)
-    {
-        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
-
-        // step through the posts in a column
-
-        while (column->topdelta != 0xff)
-        {
-            source = (byte *) column + 3;
-            dest = desttop + column->topdelta * SCREENWIDTH;
-            count = column->length;
-
-            while (count--)
-            {
-                *dest = tinttable[((*dest) << 8) + *source++];
-                dest += SCREENWIDTH;
-            }
-            column = (column_t *) ((byte *) column + column->length + 4);
-        }
-    }
+    V_DrawPatchT<DrawMode::XLA>(x, y, patch);
 }
 
 //
@@ -403,52 +168,108 @@ void V_DrawAltTLPatch(int x, int y, patch_t * patch)
 // Masks a column based masked pic to the screen.
 //
 
-void V_DrawShadowedPatch(int x, int y, patch_t *patch)
+void V_DrawShadowedPatch(int x, int y, patch_t* patch)
 {
-    int count, col;
-    column_t *column;
-    byte *desttop, *dest, *source;
-    byte *desttop2, *dest2;
-    int w;
+    V_DrawPatchT<DrawMode::Shadowed>(x, y, patch);
+}
+
+template <DrawMode drawMode>
+void V_DrawPatchT(int x, int y, patch_t* patch)
+{
+    int count;
+    int colidx, col, row;
+    column_t* column;
+    byte* desttop, * dest;
+    byte* desttop2, * dest2;
+    byte* source;
+    int w, h;
+    int xadj = 0;
+    int yadj = 0;
+
+	(void)desttop2;
+	(void)dest2;
 
     y -= SHORT(patch->topoffset);
     x -= SHORT(patch->leftoffset);
 
-    if (x < 0
-     || x + SHORT(patch->width) > SCREENWIDTH
-     || y < 0
-     || y + SHORT(patch->height) > SCREENHEIGHT)
+    if (x < 0)
     {
-        I_Error("Bad V_DrawShadowedPatch");
+        xadj = -x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        yadj = -y;
+        y = 0;
     }
 
-    col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-    desttop2 = dest_screen + (y + 2) * SCREENWIDTH + x + 2;
-
-    w = SHORT(patch->width);
-    for (; col < w; x++, col++, desttop++, desttop2++)
+    desttop = dest_screen + (y * SCREENWIDTH) + x;
+    if constexpr (drawMode == DrawMode::Shadowed)
     {
-        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
+        desttop2 = dest_screen + ((y + 2) * SCREENWIDTH) + x + 2;
+	}
+
+    w = (int)SHORT(patch->width) - xadj;
+    if (x + w > SCREENWIDTH)
+    {
+        w = SCREENWIDTH - x;
+    }
+
+    h = (int)SHORT(patch->height) - yadj;
+    if (y + h > SCREENHEIGHT)
+    {
+        h = SCREENHEIGHT - y;
+    }
+
+    for (col = xadj; col < w; col++, desttop++)
+    {
+        if constexpr (drawMode == DrawMode::Flipped)
+        {
+            colidx = w - 1 - col;
+        }
+        else
+        {
+			colidx = col;
+        }
+        column = (column_t*)((byte*)patch + LONG(patch->columnofs[colidx]));
 
         // step through the posts in a column
-
         while (column->topdelta != 0xff)
         {
-            source = (byte *) column + 3;
+            source = (byte*)column + 3;
             dest = desttop + column->topdelta * SCREENWIDTH;
-            dest2 = desttop2 + column->topdelta * SCREENWIDTH;
+            if constexpr (drawMode == DrawMode::Shadowed)
+            {
+                dest2 = desttop2 + column->topdelta * SCREENWIDTH;
+            }
             count = column->length;
 
-            while (count--)
+            row = yadj;
+            dest += row * SCREENWIDTH;
+
+            for (; count && row < h; row++, count--)
             {
-                *dest2 = tinttable[((*dest2) << 8)];
-                dest2 += SCREENWIDTH;
-                *dest = *source++;
+                if constexpr (drawMode == DrawMode::TL)
+                {
+                    *dest = tinttable[((*dest) << 8) + *source++];
+                }
+                else if constexpr (drawMode == DrawMode::XLA)
+                {
+                    *dest = xlatab[*dest + ((*source) << 8)];
+				}
+                else
+                {
+                    *dest = *source++;
+                }
                 dest += SCREENWIDTH;
 
+                if constexpr (drawMode == DrawMode::Shadowed)
+                {
+                    *dest2 = tinttable[((*dest2) << 8)];
+                    dest2 += SCREENWIDTH;
+				}
             }
-            column = (column_t *) ((byte *) column + column->length + 4);
+            column = (column_t*)((byte*)column + column->length + 4);
         }
     }
 }
@@ -459,7 +280,7 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
 
 void V_LoadTintTable(void)
 {
-    tinttable = W_CacheLumpName("TINTTAB", PU_STATIC);
+    tinttable = static_cast<byte*>(W_CacheLumpName("TINTTAB", PU_STATIC));
 }
 
 //
@@ -470,7 +291,7 @@ void V_LoadTintTable(void)
 
 void V_LoadXlaTable(void)
 {
-    xlatab = W_CacheLumpName("XLATAB", PU_STATIC);
+    xlatab = static_cast<byte*>(W_CacheLumpName("XLATAB", PU_STATIC));
 }
 
 //
@@ -478,11 +299,11 @@ void V_LoadXlaTable(void)
 // Draw a linear block of pixels into the view buffer.
 //
 
-void V_DrawBlock(int x, int y, int width, int height, byte *src) 
-{ 
-    byte *dest; 
- 
-#ifdef RANGECHECK 
+void V_DrawBlock(int x, int y, int width, int height, byte *src)
+{
+    byte *dest;
+
+#ifdef RANGECHECK
     if (x < 0
      || x + width >SCREENWIDTH
      || y < 0
@@ -491,16 +312,16 @@ void V_DrawBlock(int x, int y, int width, int height, byte *src)
 	I_Error ("Bad V_DrawBlock");
     }
 #endif
- 
-    dest = dest_screen + y * SCREENWIDTH + x; 
 
-    while (height--) 
-    { 
-	memcpy (dest, src, width); 
-	src += width; 
-	dest += SCREENWIDTH; 
-    } 
-} 
+    dest = dest_screen + y * SCREENWIDTH + x;
+
+    while (height--)
+    {
+	memcpy (dest, src, width);
+	src += width;
+	dest += SCREENWIDTH;
+    }
+}
 
 void V_DrawFilledBox(int x, int y, int w, int h, int c)
 {
@@ -561,7 +382,7 @@ void V_DrawBox(int x, int y, int w, int h, int c)
 // Draw a "raw" screen (lump containing raw data to blit directly
 // to the screen)
 //
- 
+
 void V_DrawRawScreen(byte *raw)
 {
     memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
@@ -569,9 +390,9 @@ void V_DrawRawScreen(byte *raw)
 
 //
 // V_Init
-// 
-void V_Init (void) 
-{ 
+//
+void V_Init (void)
+{
     // no-op!
     // There used to be separate screens that could be drawn to; these are
     // now handled in the upper layers.
@@ -606,17 +427,17 @@ typedef struct
     unsigned short	ymin;
     unsigned short	xmax;
     unsigned short	ymax;
-    
+
     unsigned short	hres;
     unsigned short	vres;
 
     unsigned char	palette[48];
-    
+
     char		reserved;
     char		color_planes;
     unsigned short	bytes_per_line;
     unsigned short	palette_type;
-    
+
     char		filler[58];
     unsigned char	data;		// unbounded
 } PACKEDATTR pcx_t;
@@ -626,7 +447,7 @@ typedef struct
 // WritePCXfile
 //
 
-void WritePCXfile(char *filename, byte *data,
+void WritePCXfile(const char *filename, const byte *data,
                   int width, int height,
                   byte *palette)
 {
@@ -634,8 +455,8 @@ void WritePCXfile(char *filename, byte *data,
     int		length;
     pcx_t*	pcx;
     byte*	pack;
-	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
+
+    pcx = static_cast<pcx_t*>(Z_Malloc (width*height*2+1000, PU_STATIC, NULL));
 
     pcx->manufacturer = 0x0a;		// PCX id
     pcx->version = 5;			// 256 color
@@ -655,7 +476,7 @@ void WritePCXfile(char *filename, byte *data,
 
     // pack the image
     pack = &pcx->data;
-	
+
     for (i=0 ; i<width*height ; i++)
     {
 	if ( (*data & 0xc0) != 0xc0)
@@ -666,15 +487,15 @@ void WritePCXfile(char *filename, byte *data,
 	    *pack++ = *data++;
 	}
     }
-    
+
     // write the palette
     *pack++ = 0x0c;	// palette ID byte
     for (i=0 ; i<768 ; i++)
 	*pack++ = *palette++;
-    
+
     // write output file
     length = pack - (byte *)pcx;
-    M_WriteFile (filename, pcx, length);
+    M_WriteFile (const_cast<char*>(filename), pcx, length);
 
     Z_Free (pcx);
 }
@@ -768,8 +589,8 @@ void V_ScreenShot(char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
-    char *ext;
-    
+    const char *ext;
+
     // find a file name to save it to
 
 #ifdef HAVE_LIBPNG
@@ -812,7 +633,7 @@ void V_ScreenShot(char *format)
     // save the pcx file
     WritePCXfile(lbmname, I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+                 static_cast<byte*>(W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE)));
     }
 }
 

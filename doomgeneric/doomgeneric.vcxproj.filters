@@ -222,9 +222,6 @@
     <ClCompile Include="tables.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="v_video.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="w_checksum.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -256,6 +253,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dg_file_stdio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="v_video.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
